@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+test_images/
+src/__pycache__/
+src/computer_vision/__pycache__/
+dev_notes.txt
+main_test.py
+.env
+yolo-Weights
