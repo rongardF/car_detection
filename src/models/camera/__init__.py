@@ -1,2 +1,2 @@
-from .resolution import ResolutionDto
-from .parameters import ParametersDto
+from .resolution_dto import ResolutionDto
+from .parameters_dto import ParametersDto

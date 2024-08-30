@@ -3,6 +3,7 @@ from flask_restx import Api, Namespace, Resource
 from pydantic import ValidationError
 
 from src import ApplicationContainer
+from src.models import ProcessRequestDto, ProcessResultDto
 from src.services import Processor
 
 
@@ -34,20 +35,14 @@ def init_api(app: Flask, container: ApplicationContainer) -> None:
 
         def post(self):
             try:
-                image_base64 = request.json.get("image_base64")
-                parameters = request.json.get("parameters")
-
-                num, inferred_image_base64 = self._processor.process(
-                    image_base64=image_base64,
-                    parameters_dict=parameters
-                )
-
+                process_request = ProcessRequestDto(**request.json)
+                process_result = self._processor.process(process_request)
             except ValidationError as error:
                 abort(400, description="Invalid request arguments.")
             except Exception as error:
                 abort(501, description=str(error))
 
             return {
-                "number_of_cars": num,
-                "inferred_image": inferred_image_base64
+                "number_of_cars": process_result.detection_result.count,
+                "inferred_image": process_result.inferred_image_base64,
             }

@@ -1,5 +1,4 @@
 {
-    "location_id": "12345",
     "resolution": {
         "width": 1920,
         "height": 1080
@@ -9,5 +8,8 @@
         [1000, 1080],
         [1920, 1080],
         [1920,0]
-    ]
+    ],
+    "return_inferred_image": true,
+    "include_boundary_boxes": true,
+    "include_confidence": true
 }

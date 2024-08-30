@@ -11,7 +11,7 @@ from ultralytics.engine.results import Boxes
 
 from src.interfaces import AbstractVehicleDetector
 
-from src.models import DetectionDto
+from src.models import DetectionRequestDto, DetectionResultDto
 
 
 class YoloDetector(AbstractVehicleDetector):
@@ -62,7 +62,12 @@ class YoloDetector(AbstractVehicleDetector):
 
         return np.array(boundary_boxes)
 
-    def _apply_overlay(self, boxes: List[Boxes], image_array: np.ndarray) -> np.ndarray:
+    def _apply_overlay(
+        self, 
+        boxes: List[Boxes], 
+        image_array: np.ndarray,
+        include_confidence_label: bool
+    ) -> None:
         # Iterate through each bounding box
         for box in boxes:
             if int(box.cls[0]) not in self.VECHICLE_INDEXES:
@@ -81,36 +86,44 @@ class YoloDetector(AbstractVehicleDetector):
                 thickness=3
             )
 
-            # Overlay class name and confidence
-            confidence = math.ceil((box.conf[0]*100))/100
-            cls = int(box.cls[0])
-            text = f"{self.CLASS_NAMES[cls]}:{confidence}"
+            if include_confidence_label:
+                # Overlay class name and confidence
+                confidence = math.ceil((box.conf[0]*100))/100
+                cls = int(box.cls[0])
+                text = f"{self.CLASS_NAMES[cls]}:{confidence}"
 
-            cv2.putText(
-                img=image_array, 
-                text=text, 
-                org=[x1, y1], 
-                fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
-                fontScale=1, 
-                color=(255, 0, 0), 
-                thickness=2
-            )
-        
-        return image_array
+                cv2.putText(
+                    img=image_array, 
+                    text=text, 
+                    org=[x1, y1], 
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                    fontScale=1, 
+                    color=(255, 0, 0), 
+                    thickness=2
+                )
     
-    def detect_and_count(self, image: ImageFile) -> DetectionDto:
+    def detect_and_count(
+        self, detection_request: DetectionRequestDto
+    ) -> DetectionResultDto:
         # copy and convert to numpy array
-        image_array = np.array(image)
+        image_array = np.array(detection_request.image)
 
         # infer objects from the image
         result = self._model(image_array, stream=False)[0]
 
-        inferred_image = self._apply_overlay(result.boxes, image_array)
+        parameters = detection_request.process_request.parameters
+        if parameters.include_boundary_boxes:
+            self._apply_overlay(
+                boxes=result.boxes, 
+                image_array=image_array,
+                include_confidence_label=parameters.include_confidence
+            )
 
         boundary_boxes = self._extract_boundary_boxes(result.boxes)
 
-        return DetectionDto(
-            inferred_image=Image.fromarray(inferred_image),
+        return DetectionResultDto(
+            detection_request=detection_request,
+            inferred_image=Image.fromarray(image_array),
             boundary_boxes=boundary_boxes,
             count=len(boundary_boxes)
         )

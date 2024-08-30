@@ -1,11 +1,12 @@
 from abc import abstractmethod, ABC
-from PIL.ImageFile import ImageFile
 
-from src.models import DetectionDto
+from src.models import DetectionRequestDto, DetectionResultDto
 
 
 class AbstractVehicleDetector(ABC):
 
     @abstractmethod
-    def detect_and_count(self, image: ImageFile) -> DetectionDto:
+    def detect_and_count(
+        self, detection_request: DetectionRequestDto
+    ) -> DetectionResultDto:
         raise NotImplementedError()

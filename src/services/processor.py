@@ -5,7 +5,11 @@ from src.interfaces import (
     AbstractProcessor,
     AbstractImageProcessor
 )
-from src.models import ParametersDto
+from src.models import (
+    DetectionRequestDto,
+    ProcessRequestDto, 
+    ProcessResultDto
+)
 
 
 class Processor(AbstractProcessor):
@@ -18,18 +22,36 @@ class Processor(AbstractProcessor):
         self._vechicle_detector = detector
         self._image_processor = image_processor
 
-    def process(
-        self,
-        image_base64: str,
-        parameters_dict: Dict[str, Any]
-    ) -> Tuple[int, str]:
-        image = self._image_processor.base64_to_image(image_base64)
-        parameters = ParametersDto(**parameters_dict)
+    def process(self, process_request: ProcessRequestDto) -> ProcessResultDto:
+        image = self._image_processor.base64_to_image(
+            image_base64=process_request.image_base64
+        )
 
-        blacked_out_image = self._image_processor.draw_blackout_mask(image, parameters)
+        blacked_out_image = self._image_processor.draw_blackout_mask(
+            image=image, 
+            parameters=process_request.parameters
+        )
 
-        detection_data = self._vechicle_detector.detect_and_count(blacked_out_image)
+        detection_request = DetectionRequestDto(
+            process_request=process_request,
+            image=blacked_out_image
+        )
 
-        result_image_base64 = self._image_processor.image_to_base64(detection_data.inferred_image)  # TODO: add an option in parameters which specifies if reply shoudl include processed image or not
+        detection_result = self._vechicle_detector.detect_and_count(
+            detection_request=detection_request
+        )
 
-        return (detection_data.count, result_image_base64)
+        if process_request.parameters.return_inferred_image:
+            result_image_base64 = (
+                self._image_processor.image_to_base64(
+                    image=detection_result.inferred_image
+                )
+            )
+        else:
+            result_image_base64 = None
+
+        return ProcessResultDto(
+            process_request=process_request,
+            detection_result=detection_result, 
+            inferred_image_base64=result_image_base64,
+        )

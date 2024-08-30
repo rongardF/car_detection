@@ -5,7 +5,7 @@ from PIL.ImageFile import ImageFile
 
 from src.interfaces import AbstractVehicleDetector
 
-from src.models import DetectionDto
+from src.models import DetectionRequestDto, DetectionResultDto
 
 
 class CascadeClassifierDetector(AbstractVehicleDetector):
@@ -41,10 +41,12 @@ class CascadeClassifierDetector(AbstractVehicleDetector):
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
         return cv2.morphologyEx(image_array, cv2.MORPH_CLOSE, kernel)
     
-    def detect_and_count(self, image: ImageFile) -> DetectionDto:
+    def detect_and_count(
+        self, detection_request: DetectionRequestDto
+    ) -> DetectionResultDto:
         # resize image because the classifier is trained to work
         # with smaller reoslution images - scaling factor is 2
-        resized_image = self._resize(image)
+        resized_image = self._resize(detection_request.image)
 
         image_array = np.asarray(resized_image)
 
@@ -72,20 +74,24 @@ class CascadeClassifierDetector(AbstractVehicleDetector):
 
         # count and annotate cars on the image
         boundary_boxes = []
-        orig_image_array = np.array(image)
+        orig_image_array = np.array(detection_request.image)
         for (x, y, w, h) in detections:
             # scale to original image size
             x_i = 2*x
             y_i = 2*y
             w_i = 2*w
             h_i = 2*h
-            cv2.rectangle(
-                orig_image_array, 
-                (x_i, y_i), 
-                (x_i + w_i, y_i + h_i), 
-                (255, 0, 0), 
-                2
-            )
+            if (
+                detection_request.process_request.parameters.
+                include_boundary_boxes
+            ):
+                cv2.rectangle(
+                    orig_image_array, 
+                    (x_i, y_i), 
+                    (x_i + w_i, y_i + h_i), 
+                    (255, 0, 0), 
+                    2
+                )
             # append each boundary box: 
             boundary_boxes.append(
                 [
@@ -94,7 +100,8 @@ class CascadeClassifierDetector(AbstractVehicleDetector):
                 ]
             )
 
-        return DetectionDto(
+        return DetectionResultDto(
+            detection_request=detection_request,
             inferred_image=Image.fromarray(orig_image_array),
             boundary_boxes=np.array(boundary_boxes),
             count=len(boundary_boxes)
