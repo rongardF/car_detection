@@ -1,0 +1,1 @@
+from .cnn_detector.yolov8.yolov8_detector import YoloDetector

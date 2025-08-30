@@ -1,0 +1,2 @@
+from .service import AbstractProcessor, AbstractImageProcessor
+from .detector.abstract_vehicle_detector import AbstractVehicleDetector
