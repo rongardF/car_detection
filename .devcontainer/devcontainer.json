@@ -1,0 +1,68 @@
+{
+  "name": "Detector devcontainer",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/opt/app/",
+  "forwardPorts": [
+    8000
+  ],
+  "postCreateCommand": "/opt/app/.devcontainer/startup.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": null,
+        "extensions.autoUpdate": "false",
+        "python.pythonPath": "/usr/local/bin/python",
+        "python.languageServer": "Pylance",
+        "autoDocstring.docstringFormat": "sphinx",
+        "autoDocstring.guessTypes": true,
+        "autoDocstring.startOnNewLine": true,
+        "python.analysis.completeFunctionParens": true,
+        "python.analysis.indexing": true,
+        "cSpell.words": [
+          "ondelete",
+          "sessionmaker",
+          "rtype",
+          "pylint",
+          "pylance",
+          "selectinload",
+          "pyright",
+          "PYTHONPYCACHEPREFIX",
+          "pycache",
+          "adduser",
+          "gecos",
+          "redoc",
+          "YOLO"
+        ],
+        "python.linting.pylintEnabled": true,
+        "python.linting.pylintArgs": [
+          "--extension-pkg-whitelist=cv2, pydantic",
+          "--max-args=10",
+          "--max-positional-arguments=10",
+          "--disable =fixme, too-few-public-methods]"
+        ],
+        "python.linting.pycodestyleArgs": [
+          "--max-line-length=100"
+        ],
+        "python.testing.pytestEnabled": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": [
+          "--line-length",
+          "100"
+        ]
+      },
+      "extensions": [
+        "ms-python.pylint",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "njpwerner.autodocstring",
+        "streetsidesoftware.code-spell-checker",
+        "ms-python.black-formatter",
+        "docker.docker"
+      ]
+    }
+  }
+}
