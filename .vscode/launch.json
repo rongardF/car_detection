@@ -2,15 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File (pytest)",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "pytest",
-            "args": ["${file}"],
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
             "name": "Python Debugger: FastAPI",
             "type": "debugpy",
             "request": "launch",
@@ -27,6 +18,15 @@
             "jinja": false,
             "justMyCode": false,
             "console": "integratedTerminal",
+        },
+        {
+            "name": "Python: Current File (pytest)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["${file}"],
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

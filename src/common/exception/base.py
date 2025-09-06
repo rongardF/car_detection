@@ -15,7 +15,7 @@ class RestException(BaseModel):
     the exception payload.
     """
 
-    detail: str
+    detail: str = "<failure-description>"
 
 
 class HTTPException(Exception):

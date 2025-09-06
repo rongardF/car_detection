@@ -5,12 +5,15 @@ from fastapi import FastAPI
 from common.initializer import State, Initializer
 
 # local imports
-from .interface.service import AbstractProcessor
-from .service import Processor, ImageProcessor
+from .interface import AbstractVehicleCounter
+from .service import VehicleCounter, ImageProcessor
 from .detector import YoloDetector
+from .database import CountAnalysisConfig, BaseRepository, CountAnalysisConfigRepository
+
 
 class ServiceState(State):
-    processor: AbstractProcessor
+    vehicle_counter: AbstractVehicleCounter
+    analysis_config_repository: BaseRepository
 
 
 class DetectorServiceInitializer(Initializer):
@@ -22,17 +25,24 @@ class DetectorServiceInitializer(Initializer):
 
         detector_used = state.config.require_config("DETECTOR_USED")
         if detector_used == "YOLOV8":
-            detector = YoloDetector()
+            detector = YoloDetector(confidence=0.8)
         else:
-            raise TypeError("No detector specified")
+            raise ValueError("no_detector_specifed")
+        
         image_processor = ImageProcessor()
-        processor = Processor(detector=detector, image_processor=image_processor)
+        vehicle_counter = VehicleCounter(object_detector=detector, image_processor=image_processor)
+
+        # initialize repository
+        analysis_config_repository = CountAnalysisConfigRepository(
+            engine=self.engine_factory.create_engine("DB"),
+        )
 
         # self.logger.info("detector_service_initialized")
 
         return ServiceState(
             **state,
-            processor=processor
+            vehicle_counter=vehicle_counter,
+            analysis_config_repository=analysis_config_repository
         )
 
     async def __aexit__(

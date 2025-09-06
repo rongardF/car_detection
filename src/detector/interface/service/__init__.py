@@ -1,2 +1,2 @@
-from .AbstractImageProcessor import AbstractImageProcessor
-from .AbstractProcessor import AbstractProcessor
+from .abstract_image_processor import AbstractImageProcessor
+from .abstract_vehicle_counter import AbstractVehicleCounter

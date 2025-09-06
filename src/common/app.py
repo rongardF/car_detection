@@ -63,5 +63,7 @@ def create_fastapi_app(
     # Required middleware
     # app.add_middleware(LoggingMiddleware)  # This is the most inner middleware right before the router.
     app.add_middleware(GlobalExceptionMiddleware)
+    # TODO: add 'HTTPSRedirectMiddleware' middleware to ensure that all traffic goes through https protocol
+    # TODO: add 'CORSMiddleware' to avoid CORS errors on FE side
 
     return app

@@ -6,6 +6,7 @@ from starlette.types import Receive, Scope, Send
 
 
 class GlobalExceptionMiddleware:
+    # more info about middlewares: https://www.starlette.io/middleware/ 
     def __init__(self, app: FastAPI):
         self.app = app
 
@@ -17,6 +18,12 @@ class GlobalExceptionMiddleware:
 
         try:
             await self.app(scope, receive, send)
+        except ValueError:
+            response = JSONResponse(
+                status_code=getattr(HTTPStatus.BAD_REQUEST, "value"),
+                content={"errors": [getattr(HTTPStatus.BAD_REQUEST, "phrase")]},
+            )
+            await response(scope, receive, send)
         except Exception:  # pylint: disable=broad-exception-caught
             # logger.exception("unhandled_exception")
             response = JSONResponse(

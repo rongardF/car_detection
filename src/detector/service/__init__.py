@@ -1,2 +1,2 @@
 from .image_processor import ImageProcessor
-from .processor import Processor
+from .vehicle_counter import VehicleCounter

@@ -12,6 +12,8 @@ fonttools==4.59.2
 fsspec==2025.7.0
 greenlet==3.2.4
 h11==0.16.0
+pyhumps==3.8.0
+python_multipart==0.0.20
 idna==3.10
 Jinja2==3.1.6
 kiwisolver==1.4.9
