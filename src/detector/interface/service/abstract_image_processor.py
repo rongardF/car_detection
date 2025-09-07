@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 from numpy import ndarray
 from fastapi import UploadFile
 
-from ...model.detector import ObjectBoundingBox
-from ...model.api.config import ImageResolution
+# local imports
+from ...model.dto import ObjectBoundingBoxDto
+from ...model.dto import ImageResolutionDto
 
 
 class AbstractImageProcessor(ABC):
@@ -19,7 +20,7 @@ class AbstractImageProcessor(ABC):
     def draw_bounding_boxes(
         self,
         image: ndarray,
-        bounding_boxes: list[ObjectBoundingBox],
+        bounding_boxes: list[ObjectBoundingBoxDto],
         make_image_copy: bool = False,
         include_confidence_label: bool = True,
         thickness: int = 3,
@@ -29,5 +30,5 @@ class AbstractImageProcessor(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def draw_blackout_mask(self, image_array: ndarray, resolution: ImageResolution, mask: list[list[float]]) -> ndarray:
+    def draw_blackout_mask(self, image_array: ndarray, resolution: ImageResolutionDto, mask: list[list[float]]) -> ndarray:
        raise NotImplementedError()

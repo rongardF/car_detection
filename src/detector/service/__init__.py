@@ -1,2 +1,3 @@
 from .image_processor import ImageProcessor
-from .vehicle_counter import VehicleCounter
+from .object_counter import ObjectCounter
+from .analyze_count_config_manager import AnalyzeCountConfigManager

@@ -1,2 +1,4 @@
 from .base_repository import BaseRepository
 from .count_analysis_config import CountAnalysisConfigRepository
+from .frame_mask import FrameMaskRepository
+from .object import ObjectRepository

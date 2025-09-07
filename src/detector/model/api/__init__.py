@@ -1,3 +1,7 @@
-from .analysis.vehicle_count import VehicleCountResponse
+from .vehicle_count import VehicleCountResponse
 
-from .config import CountAnalysisConfigRequest, CountAnalysisConfigResponse
+from .analysis_config_base import AnalysisConfigBaseResponse, AnalysisConfigBaseRequest
+from .count_analysis_config import CountAnalysisConfigRequest, CountAnalysisConfigResponse
+from .image_resolution import ImageResolution
+from .pixel_coordinate import PixelCoordinate
+from .object_bounding_box import ObjectBoundingBox

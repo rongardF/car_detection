@@ -2,14 +2,12 @@ from fastapi import UploadFile
 
 # local imports
 from ..interface.detector import AbstractObjectDetector
-from ..interface import AbstractImageProcessor, AbstractVehicleCounter
+from ..interface import AbstractImageProcessor, AbstractObjectCounter
 from ..model.enum import ObjectEnum
 from ..model.api import VehicleCountResponse, CountAnalysisConfigResponse
 
 
-class VehicleCounter(AbstractVehicleCounter):
-
-    OBJECTS_MAPPING: dict[ObjectEnum] = [ObjectEnum.BICYCLE, ObjectEnum.CAR, ObjectEnum.BUS, ObjectEnum.TRUCK, ObjectEnum.MOTORBIKE]
+class ObjectCounter(AbstractObjectCounter):
 
     def __init__(self, object_detector: AbstractObjectDetector, image_processor: AbstractImageProcessor) -> None:
         self._object_detector = object_detector

@@ -1,2 +1,2 @@
 from .model import CountAnalysisConfig, FrameMask, Object
-from .repository import BaseRepository, CountAnalysisConfigRepository
+from .repository import BaseRepository, CountAnalysisConfigRepository, FrameMaskRepository, ObjectRepository

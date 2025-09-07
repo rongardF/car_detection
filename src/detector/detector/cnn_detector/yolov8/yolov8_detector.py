@@ -9,7 +9,7 @@ from ultralytics.engine.results import Boxes, Results
 # local imports
 from ....interface import AbstractObjectDetector
 from ....model.enum import ObjectEnum
-from ....model.detector import ObjectBoundingBox
+from ....model.api import ObjectBoundingBox
 from ....exception import AnalyzerException
 
 

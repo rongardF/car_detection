@@ -75,7 +75,6 @@ class EngineFactory:
         db_name = self._config.require_config(f"{database_identifier}_NAME")
         db_user = self._config.require_config(f"{database_identifier}_USER")
         db_password = self._config.require_config(f"{database_identifier}_PASSWORD")
-        pod_id = self._config.require_config("VERIFF_POD_IDENTITY")
         url = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
         # Data-platform configure DBs in a way that services can't have connection pools,
@@ -88,7 +87,7 @@ class EngineFactory:
             echo=False,
             poolclass=NullPool,
             connect_args={
-                "server_settings": {"application_name": pod_id},
+                "server_settings": {"application_name": "test"},
                 "statement_cache_size": 0,
                 "prepared_statement_cache_size": 0,
                 "connection_class": _CConnection,

@@ -1,2 +1,0 @@
-from .pixel_coordinate import PixelCoordinate
-from .object_bounding_box import ObjectBoundingBox

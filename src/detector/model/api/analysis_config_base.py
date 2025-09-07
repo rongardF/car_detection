@@ -6,7 +6,7 @@ from common.model import RequestBase, ResponseBase
 
 # local imports
 from .image_resolution import ImageResolution
-from ...detector import PixelCoordinate
+from .pixel_coordinate import PixelCoordinate
 
 
 class AnalysisConfigBaseRequest(RequestBase):
@@ -18,5 +18,3 @@ class AnalysisConfigBaseResponse(ResponseBase):
     id: UUID = Field(title="Analysis config ID")
     image_resolution: ImageResolution = Field(title="Image resolution")
     image_mask: Optional[list[PixelCoordinate]] = Field(title="Image mask", description="Area on the image that will be blacked out before analysis", default=None)
-    
-

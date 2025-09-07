@@ -6,8 +6,8 @@ from fastapi import UploadFile
 
 # local imports
 from ..interface import AbstractImageProcessor
-from ..model.detector import ObjectBoundingBox, PixelCoordinate
-from ..model.api.config import ImageResolution
+from ..model.api import ObjectBoundingBox, PixelCoordinate
+from ..model.api import ImageResolution
 from ..exception import MaskInvalidException, FileInvalidException
 
 

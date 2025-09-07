@@ -2,4 +2,5 @@ from common.doc import Tag, TagEnum
 
 
 class Tags(TagEnum):
-    DETECTION = Tag(name="Detection")
+    ANALYZE = Tag(name="Analyze")
+    CONFIGURE = Tag(name="Configure")

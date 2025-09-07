@@ -1,8 +1,7 @@
-from uuid import UUID
 from pydantic import Field
 
 # local imports
-from ...enum import ObjectEnum
+from ..enum import ObjectEnum
 from .analysis_config_base import AnalysisConfigBaseRequest, AnalysisConfigBaseResponse
 
 

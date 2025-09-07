@@ -7,7 +7,7 @@ from common.exception import HTTPException
 from common.database import Repository, T
 
 # local imports
-from ...exception import NotUniqueException, NotFoundException, RestrictionException
+from common.exception import NotUniqueException, NotFoundException, RestrictionException
 
 _UNIQUE_KEY_VIOLATION = r".*duplicate key value violates unique constraint \"(.*)\".*"
 _FOREIGN_KEY_VIOLATION = r".*insert or update on table .* violates foreign key constraint .* Key \((.*)\)=\((.*)\) is not present in table .*"  # pylint: disable=line-too-long

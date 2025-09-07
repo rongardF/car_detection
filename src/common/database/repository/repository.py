@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 # local imports
 from ..model import Base
+from ...exception import NotFoundException
 
 T = TypeVar("T", bound=Base)
 
@@ -43,7 +44,6 @@ class Repository(ABC, Generic[T]):
         Fetch all entities from the database. Method uses generic type T which will be made specific
         when specific repository is implemented.
 
-        :raises NotFoundException: If fetched list of entities is empty
         :return: List of entities (rows)
         :rtype: Sequence[T]
         """
@@ -69,6 +69,9 @@ class Repository(ABC, Generic[T]):
             query = select(self._model).where(self._model.id == entity_id)
             scalars = await session.scalars(query)
             result: T = scalars.unique().first()
+            
+            if result is None:
+                raise NotFoundException("entity_not_found")
 
         return result
     

@@ -5,15 +5,16 @@ from fastapi import FastAPI
 from common.initializer import State, Initializer
 
 # local imports
-from .interface import AbstractVehicleCounter
-from .service import VehicleCounter, ImageProcessor
+from .interface import AbstractObjectCounter, AbstractAnalyzeConfigManager
+from .service import ObjectCounter, ImageProcessor, AnalyzeCountConfigManager
 from .detector import YoloDetector
-from .database import CountAnalysisConfig, BaseRepository, CountAnalysisConfigRepository
+from .database import BaseRepository, CountAnalysisConfigRepository, FrameMaskRepository, ObjectRepository
 
 
 class ServiceState(State):
-    vehicle_counter: AbstractVehicleCounter
-    analysis_config_repository: BaseRepository
+    vehicle_counter: AbstractObjectCounter
+
+    analyze_count_config_manager: AbstractAnalyzeConfigManager
 
 
 class DetectorServiceInitializer(Initializer):
@@ -27,14 +28,28 @@ class DetectorServiceInitializer(Initializer):
         if detector_used == "YOLOV8":
             detector = YoloDetector(confidence=0.8)
         else:
-            raise ValueError("no_detector_specifed")
+            raise ValueError("no_detector_specified")
         
         image_processor = ImageProcessor()
-        vehicle_counter = VehicleCounter(object_detector=detector, image_processor=image_processor)
+        vehicle_counter = ObjectCounter(object_detector=detector, image_processor=image_processor)
 
         # initialize repository
         analysis_config_repository = CountAnalysisConfigRepository(
             engine=self.engine_factory.create_engine("DB"),
+        )
+
+        frame_mask_repository = FrameMaskRepository(
+            engine=self.engine_factory.create_engine("DB"),
+        )
+
+        object_repository = ObjectRepository(
+            engine=self.engine_factory.create_engine("DB"),
+        )
+
+        analyze_count_config_manager = AnalyzeCountConfigManager(
+            frame_mask_repository=frame_mask_repository,
+            object_repository=object_repository,
+            count_analysis_config_repository=analysis_config_repository
         )
 
         # self.logger.info("detector_service_initialized")
@@ -42,7 +57,7 @@ class DetectorServiceInitializer(Initializer):
         return ServiceState(
             **state,
             vehicle_counter=vehicle_counter,
-            analysis_config_repository=analysis_config_repository
+            analyze_count_config_manager=analyze_count_config_manager
         )
 
     async def __aexit__(

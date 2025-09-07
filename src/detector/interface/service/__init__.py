@@ -1,2 +1,3 @@
 from .abstract_image_processor import AbstractImageProcessor
-from .abstract_vehicle_counter import AbstractVehicleCounter
+from .abstract_config_manager import AbstractAnalyzeConfigManager
+from .abstract_object_counter import AbstractObjectCounter
