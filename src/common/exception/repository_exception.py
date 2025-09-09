@@ -6,7 +6,12 @@ class RepositoryException(Exception):
 
 
 class NotFoundException(RepositoryException):
-    pass
+    
+    def __init__(self, entity_id: str, key_name: str, table_name: str):
+        super().__init__()
+        self.entity_id = entity_id
+        self.key_name = key_name
+        self.table_name = table_name
 
 
 class NotUniqueException(RepositoryException):

@@ -10,7 +10,7 @@ from common.database import Repository, T
 from common.exception import NotUniqueException, NotFoundException, RestrictionException
 
 _UNIQUE_KEY_VIOLATION = r".*duplicate key value violates unique constraint \"(.*)\".*"
-_FOREIGN_KEY_VIOLATION = r".*insert or update on table .* violates foreign key constraint .* Key \((.*)\)=\((.*)\) is not present in table .*"  # pylint: disable=line-too-long
+_FOREIGN_KEY_VIOLATION = r".*insert or update on table .* violates foreign key constraint .* Key \((.*)\)=\((.*)\) is not present in table \"(.*)\".*"  # pylint: disable=line-too-long
 _RESTRICT_VIOLATION = r".*update or delete on table .* violates foreign key constraint .* Key .*=\((.*)\) is still referenced from table \"(.*)\".*"  # pylint: disable=line-too-long
 
 
@@ -44,22 +44,23 @@ class BaseRepository(Repository[T]):
             if custom_exception:
                 raise custom_exception from exc
 
-            raise NotUniqueException("not unique")
+            raise NotUniqueException()
 
         if error_code == "23503":  # FOREIGN KEY VIOLATION
             match = re.match(_FOREIGN_KEY_VIOLATION, error_message)
             if match:
                 key_name = match.group(1).removesuffix("_uuid")
                 entity_id = match.group(2)
+                table_name = match.group(3)
 
-                raise NotFoundException("not found")
+                raise NotFoundException(key_name=key_name, entity_id=entity_id, table_name=table_name)
 
             match = re.match(_RESTRICT_VIOLATION, error_message)
             if match:
                 entity_id = match.group(1).removesuffix("_uuid")
                 table = match.group(2)
 
-                raise RestrictionException("restricted")
+                raise RestrictionException()
 
             if not match:
                 raise exc

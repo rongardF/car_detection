@@ -8,11 +8,11 @@ from common.initializer import State, Initializer
 from .interface import AbstractObjectCounter, AbstractAnalyzeConfigManager
 from .service import ObjectCounter, ImageProcessor, AnalyzeCountConfigManager
 from .detector import YoloDetector
-from .database import BaseRepository, CountAnalysisConfigRepository, FrameMaskRepository, ObjectRepository
+from .database import CountAnalysisConfigRepository, FrameMaskRepository, ObjectRepository
 
 
 class ServiceState(State):
-    vehicle_counter: AbstractObjectCounter
+    object_counter: AbstractObjectCounter
 
     analyze_count_config_manager: AbstractAnalyzeConfigManager
 
@@ -31,7 +31,7 @@ class DetectorServiceInitializer(Initializer):
             raise ValueError("no_detector_specified")
         
         image_processor = ImageProcessor()
-        vehicle_counter = ObjectCounter(object_detector=detector, image_processor=image_processor)
+        object_counter = ObjectCounter(object_detector=detector, image_processor=image_processor)
 
         # initialize repository
         analysis_config_repository = CountAnalysisConfigRepository(
@@ -56,7 +56,7 @@ class DetectorServiceInitializer(Initializer):
 
         return ServiceState(
             **state,
-            vehicle_counter=vehicle_counter,
+            object_counter=object_counter,
             analyze_count_config_manager=analyze_count_config_manager
         )
 

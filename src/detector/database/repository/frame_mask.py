@@ -25,7 +25,7 @@ class FrameMaskRepository(BaseRepository[FrameMask]):
         :rtype: Sequence[FrameMask]
         """
         async with self._get_session() as session:
-            query = select(self._model).where(self._model.count_analysis_uuid==count_analysis_config_id)
+            query = select(self._model).where(self._model.count_analysis_config==count_analysis_config_id)
             scalars = await session.scalars(query)
             result = scalars.unique().all()
 
@@ -39,7 +39,7 @@ class FrameMaskRepository(BaseRepository[FrameMask]):
         :type count_analysis_config_id: UUID
         """
         async with self._get_session() as session:
-            query = select(self._model).where(self._model.count_analysis_uuid==count_analysis_config_id)
+            query = select(self._model).where(self._model.count_analysis_config==count_analysis_config_id)
             scalars = await session.scalars(query)
             result = scalars.unique().all()
             

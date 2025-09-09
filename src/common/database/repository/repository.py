@@ -71,7 +71,7 @@ class Repository(ABC, Generic[T]):
             result: T = scalars.unique().first()
             
             if result is None:
-                raise NotFoundException("entity_not_found")
+                raise NotFoundException(key_name="uuid", table_name=self._model.__tablename__, entity_id=entity_id)
 
         return result
     

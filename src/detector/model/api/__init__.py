@@ -1,4 +1,4 @@
-from .vehicle_count import VehicleCountResponse
+from .object_count_response import ObjectCountResponse
 
 from .analysis_config_base import AnalysisConfigBaseResponse, AnalysisConfigBaseRequest
 from .count_analysis_config import CountAnalysisConfigRequest, CountAnalysisConfigResponse
