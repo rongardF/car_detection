@@ -18,13 +18,13 @@ class GlobalExceptionMiddleware:
 
         try:
             await self.app(scope, receive, send)
-        except ValueError:
+        except ValueError as err:
             response = JSONResponse(
                 status_code=getattr(HTTPStatus.BAD_REQUEST, "value"),
                 content={"errors": [getattr(HTTPStatus.BAD_REQUEST, "phrase")]},
             )
             await response(scope, receive, send)
-        except Exception:  # pylint: disable=broad-exception-caught
+        except Exception as err:  # pylint: disable=broad-exception-caught
             # logger.exception("unhandled_exception")
             response = JSONResponse(
                 status_code=getattr(HTTPStatus.INTERNAL_SERVER_ERROR, "value"),

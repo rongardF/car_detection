@@ -42,7 +42,9 @@
           "xyxy",
           "autoflush",
           "writeaccess",
-          "readaccess"
+          "readaccess",
+          "httpsredirect",
+          "fernet",
         ],
         "python.linting.pylintEnabled": true,
         "python.linting.pylintArgs": [

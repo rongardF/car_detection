@@ -11,17 +11,21 @@ RESPONSE = TypeVar("RESPONSE", bound=AnalysisConfigBaseResponse)
 class AbstractAnalyzeConfigManager(ABC, Generic[REQUEST, RESPONSE]):
 
     @abstractmethod
-    async def add_config(self, request: REQUEST) -> RESPONSE:
+    async def add_config(self, user_id: UUID, request: REQUEST) -> RESPONSE:
         raise NotImplementedError()
     
     @abstractmethod
-    async def get_config(self, config_id: UUID) -> RESPONSE:
+    async def get_config(self, user_id: UUID, config_id: UUID) -> RESPONSE:
         raise NotImplementedError()
     
     @abstractmethod
-    async def update_config(self, config_id: UUID, request: REQUEST) -> RESPONSE:
+    async def get_all_configs(self, user_id: UUID) -> RESPONSE:
         raise NotImplementedError()
     
     @abstractmethod
-    async def delete_config(self, config_id: UUID) -> None:
+    async def update_config(self, user_id: UUID, config_id: UUID, request: REQUEST) -> RESPONSE:
+        raise NotImplementedError()
+    
+    @abstractmethod
+    async def delete_config(self, user_id: UUID, config_id: UUID) -> None:
         raise NotImplementedError()

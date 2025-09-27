@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
+from uuid import UUID, uuid4
 
 from common.database import Base
 
@@ -6,6 +7,9 @@ from common.database import Base
 class CountAnalysisConfig(Base):
     __tablename__ = "count_analysis_config"
 
+    user_id: Mapped[UUID] = mapped_column(
+        "user_uuid", nullable=False,
+    )
     image_resolution_width: Mapped[int] = mapped_column(
         "resolution_width", nullable=False
     )

@@ -1,6 +1,5 @@
 from abc import ABC
 from contextlib import asynccontextmanager
-from datetime import datetime
 from typing import Any, AsyncIterator, Dict, Sequence, Type, TypeVar, Generic
 from uuid import UUID
 
@@ -126,7 +125,7 @@ class Repository(ABC, Generic[T]):
         :rtype: T
         """
         async with self._get_session() as session:
-            values = {**values, "updated_at": datetime.utcnow()}
+            values = {**values}
             query = update(self._model).where(self._model.id == entity_id).values(values).returning(self._model.id)
 
             try:
