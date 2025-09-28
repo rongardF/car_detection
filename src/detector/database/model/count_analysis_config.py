@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from common.database import Base
 

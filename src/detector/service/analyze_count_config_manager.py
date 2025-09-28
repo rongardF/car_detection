@@ -5,9 +5,9 @@ from common.exception.repository_exception import NotFoundException
 # local imports
 from ..model.enum import ObjectEnum
 from ..model.api import CountAnalysisConfigRequest, CountAnalysisConfigResponse, ImageResolution, PixelCoordinate
-from ..exception.api import ConfigureNotFoundException
+from ..exception.api import ConfigureNotFoundException, AccountUnAuthorizedException
 from ..interface import AbstractAnalyzeConfigManager
-from ..database import FrameMaskRepository, ObjectRepository, CountAnalysisConfigRepository
+from ..database import FrameMaskRepository, ObjectRepository, CountAnalysisConfigRepository, CountAnalysisConfig
 
 
 class AnalyzeCountConfigManager(AbstractAnalyzeConfigManager[CountAnalysisConfigRequest, CountAnalysisConfigResponse]):
@@ -22,8 +22,9 @@ class AnalyzeCountConfigManager(AbstractAnalyzeConfigManager[CountAnalysisConfig
         self._object_repository = object_repository
         self._count_analysis_config_repository = count_analysis_config_repository
 
-    def _validate_is_users_config(self, user_id: UUID, config: CountAnalysisConfigResponse):
-        pass
+    def _validate_is_users_config(self, user_id: UUID, config: CountAnalysisConfig):
+        if config.user_id != user_id:
+            raise AccountUnAuthorizedException()
 
     async def add_config(self, user_id: UUID, request: CountAnalysisConfigRequest) -> CountAnalysisConfigResponse:
         count_analysis_config = await self._count_analysis_config_repository.create(
@@ -34,26 +35,42 @@ class AnalyzeCountConfigManager(AbstractAnalyzeConfigManager[CountAnalysisConfig
                 "confidence": request.confidence,
             }
         )
-        for object in request.objects:
-            await self._object_repository.create(
+
+        objects: list[ObjectEnum] = []
+        for request_object in request.objects:
+            object = await self._object_repository.create(
                 values={
-                    "value": object,
+                    "value": request_object,
                     "count_analysis_config": count_analysis_config.id
                 }
             )
+            objects.append(ObjectEnum(object.value))
 
+        image_mask: list[PixelCoordinate] = []
         for pixel_coordinate in request.image_mask:
-            await self._frame_mask_repository.create(
+            coordinate = await self._frame_mask_repository.create(
                 values={
                     "pixel_width": pixel_coordinate.width,
                     "pixel_height": pixel_coordinate.height,
                     "count_analysis_config": count_analysis_config.id
                 }
             )
+            image_mask.append(
+                PixelCoordinate(
+                    width=coordinate.pixel_width,
+                    height=coordinate.pixel_height
+                )
+            )
         
         return CountAnalysisConfigResponse(
             id=count_analysis_config.id,
-            **request.model_dump()
+            confidence=count_analysis_config.confidence,
+            image_resolution=ImageResolution(
+                width=count_analysis_config.image_resolution_width,
+                height=count_analysis_config.image_resolution_height
+            ),
+            image_mask=image_mask,
+            objects=objects
         )
     
     async def get_config(self, user_id: UUID, config_id: UUID) -> CountAnalysisConfigResponse:
@@ -130,29 +147,39 @@ class AnalyzeCountConfigManager(AbstractAnalyzeConfigManager[CountAnalysisConfig
 
             # delete old entities and add new
             await self._frame_mask_repository.delete_by_count_analysis_id(count_analysis_config_id=config_id)
+            image_mask: list[PixelCoordinate] = []
             for pixel_coordinate in request.image_mask:
-                await self._frame_mask_repository.create(
+                coordinate = await self._frame_mask_repository.create(
                     values={
                         "pixel_width": pixel_coordinate.width,
                         "pixel_height": pixel_coordinate.height,
                         "count_analysis_config": config_id
                     }
                 )
+                image_mask.append(
+                    PixelCoordinate(
+                        width=coordinate.pixel_width,
+                        height=coordinate.pixel_height
+                    )
+                )
 
             await self._object_repository.delete_by_count_analysis_id(count_analysis_config_id=config_id)      
-            for object in request.objects:
-                await self._object_repository.create(
+            objects: list[ObjectEnum] = []
+            for request_object in request.objects:
+                object = await self._object_repository.create(
                     values={
-                        "value": object,
+                        "value": request_object,
                         "count_analysis_config": config_id
                     }
                 )
+                objects.append(ObjectEnum(object.value))
 
             updated_count_analysis_config = await self._count_analysis_config_repository.update(
                 entity_id=config_id,
                 values={
                     "image_resolution_width": request.image_resolution.width,
-                    "image_resolution_height": request.image_resolution.height
+                    "image_resolution_height": request.image_resolution.height,
+                    "confidence": request.confidence,
                 }
             )
         except NotFoundException as err:
@@ -160,11 +187,19 @@ class AnalyzeCountConfigManager(AbstractAnalyzeConfigManager[CountAnalysisConfig
 
         return CountAnalysisConfigResponse(
             id=updated_count_analysis_config.id,
-            **request.model_dump()
+            confidence=updated_count_analysis_config.confidence,
+            image_resolution=ImageResolution(
+                width=updated_count_analysis_config.image_resolution_width,
+                height=updated_count_analysis_config.image_resolution_height
+            ),
+            image_mask=image_mask,
+            objects=objects
         )
     
     async def delete_config(self, user_id: UUID, config_id: UUID) -> None:
         try:
+            count_analysis_config = await self._count_analysis_config_repository.get_one(entity_id=config_id)
+            self._validate_is_users_config(user_id, count_analysis_config)
             await self._count_analysis_config_repository.delete(entity_id=config_id)
         except NotFoundException as err:
             raise ConfigureNotFoundException(f"entity_{err.entity_id}_not_found_in_{err.table_name}")

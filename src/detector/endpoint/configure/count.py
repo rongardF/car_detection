@@ -29,7 +29,7 @@ async def add_config(
     user_id: UUID = Depends(authenticate),
     analyze_count_config_manager: AbstractAnalyzeConfigManager[CountAnalysisConfigRequest, CountAnalysisConfigResponse] = Injects("analyze_count_config_manager"),
 ) -> CountAnalysisConfigResponse:
-    return await analyze_count_config_manager.add_config(request=request)
+    return await analyze_count_config_manager.add_config(user_id=user_id, request=request)
 
 
 @router.get(
@@ -47,7 +47,7 @@ async def get_config(
     user_id: UUID = Depends(authenticate),
     analyze_count_config_manager: AbstractAnalyzeConfigManager[CountAnalysisConfigRequest, CountAnalysisConfigResponse] = Injects("analyze_count_config_manager"),
 ) -> CountAnalysisConfigResponse:
-    return await analyze_count_config_manager.get_config(config_id=config_id)
+    return await analyze_count_config_manager.get_config(user_id=user_id, config_id=config_id)
 
 @router.get(
     path="/all",
@@ -62,7 +62,7 @@ async def get_all_configs(
     user_id: UUID = Depends(authenticate),
     analyze_count_config_manager: AbstractAnalyzeConfigManager[CountAnalysisConfigRequest, CountAnalysisConfigResponse] = Injects("analyze_count_config_manager"),
 ) -> list[CountAnalysisConfigResponse]:
-    return await analyze_count_config_manager.get_all_configs(user_id=UUID("3fa85f64-5717-4562-b3fc-2c963f6677a6"))
+    return await analyze_count_config_manager.get_all_configs(user_id=user_id)
 
 @router.patch(
     path="/",
@@ -81,7 +81,7 @@ async def update_config(
     user_id: UUID = Depends(authenticate),
     analyze_count_config_manager: AbstractAnalyzeConfigManager[CountAnalysisConfigRequest, CountAnalysisConfigResponse] = Injects("analyze_count_config_manager"),
 ) -> CountAnalysisConfigResponse:
-    return await analyze_count_config_manager.update_config(config_id=config_id, request=request)
+    return await analyze_count_config_manager.update_config(user_id=user_id, config_id=config_id, request=request)
 
 
 @router.delete(
@@ -99,4 +99,4 @@ async def delete_config(
     user_id: UUID = Depends(authenticate),
     analyze_count_config_manager: AbstractAnalyzeConfigManager[CountAnalysisConfigRequest, CountAnalysisConfigResponse] = Injects("analyze_count_config_manager"),
 ) -> None:
-    return await analyze_count_config_manager.delete_config(config_id=config_id)
+    return await analyze_count_config_manager.delete_config(user_id=user_id, config_id=config_id)

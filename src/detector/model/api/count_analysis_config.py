@@ -11,5 +11,3 @@ class CountAnalysisConfigRequest(AnalysisConfigBaseRequest):
 
 class CountAnalysisConfigResponse(AnalysisConfigBaseResponse):
     objects: list[ObjectEnum] = Field(title="Objects to count on the image")
-    
-

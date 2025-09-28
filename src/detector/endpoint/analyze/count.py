@@ -33,7 +33,7 @@ async def count_objects(
     analyze_count_config_manager: AbstractAnalyzeConfigManager[CountAnalysisConfigRequest, CountAnalysisConfigResponse] = Injects("analyze_count_config_manager"),
 ) -> ObjectCountResponse:
     try:
-        analysis_config = await analyze_count_config_manager.get_config(config_id=analysis_config_id)
+        analysis_config = await analyze_count_config_manager.get_config(user_id=user_id, config_id=analysis_config_id)
     except ConfigureNotFoundException:
-        raise AnalyzeNotFoundException()
+        raise AnalyzeNotFoundException(detail="configuration_entity_not_found")
     return await object_counter.count(file=file, count_analysis=analysis_config)

@@ -2,7 +2,6 @@ from types import TracebackType
 from typing import Optional, Type, Mapping, Any
 
 from fastapi import FastAPI
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 # local imports
 from .middleware import GlobalExceptionMiddleware
@@ -99,4 +98,3 @@ class Initializer:
     def _validate_middleware(self) -> None:
         middlewares = [middleware.cls for middleware in self._app.user_middleware]
         assert GlobalExceptionMiddleware in middlewares, "global_exception_middleware_missing"
-        # assert HTTPSRedirectMiddleware in middlewares, "https_redirect_middleware_missing"

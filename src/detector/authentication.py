@@ -1,9 +1,9 @@
 from uuid import UUID
+from os import environ
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 
 from secrets import token_urlsafe
-from cryptography.fernet import Fernet
 from jwt import encode, decode
 from jwt.exceptions import InvalidTokenError
 from fastapi import Security, Depends
@@ -17,10 +17,10 @@ from common.exception.repository_exception import NotFoundException
 from .database import APIKeyRepository, JWTRepository
 from .exception.api import AccountUnAuthorizedException
 
-ACCESS_SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # FIXME: get it from .env
-REFRESH_SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # FIXME: make them different
-ALGORITHM = "HS256"
-API_KEY_LENGTH = 32
+ACCESS_SECRET_KEY = environ.get("ACCESS_SECRET_KEY")
+REFRESH_SECRET_KEY = environ.get("REFRESH_SECRET_KEY")
+ALGORITHM = environ.get("ALGORITHM")
+API_KEY_LENGTH = int(environ.get("API_KEY_LENGTH"))
 
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/authentication/generate_token", refreshUrl="/v1/user/authentication/refresh_token", auto_error=False)
@@ -32,7 +32,6 @@ async def authenticate(
     token: str = Depends(oauth2_scheme),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
     jwt_repository: JWTRepository = Injects("jwt_repository"),
-    cipher: Fernet = Injects("cipher")
 ) -> UUID:
     if api_key:
         try:

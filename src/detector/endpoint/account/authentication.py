@@ -210,7 +210,7 @@ async def refresh_token(
     path="/terminate_token",
     summary="Terminate token",
     description="Invalidate refresh and access token (logout)",
-    status_code=200,
+    status_code=204,
     responses={
         400: {"model": AccountBadRequestException.model},
         401: {"model": AccountUnAuthorizedException.model},

@@ -12,8 +12,6 @@ from .service import ObjectCounter, ImageProcessor, AnalyzeCountConfigManager, A
 from .detector import YoloDetector
 from .database import CountAnalysisConfigRepository, FrameMaskRepository, ObjectRepository, UserRepository, APIKeyRepository, JWTRepository
 
-API_KEY_ENCRYPTION = "gxM0Zcvsun848CBIRBDy6Gz7rbWo52Ubn3d-q-9Z-A0="  # FIXME: take from .env
-
 
 class ServiceState(State):
     # services
@@ -40,7 +38,8 @@ class DetectorServiceInitializer(Initializer):
         db_engine = self.engine_factory.create_engine("DB")
 
         # initialize utilities
-        cipher = Fernet(API_KEY_ENCRYPTION.encode())
+        api_key_encryption = state.config.require_config("API_KEY_ENCRYPTION")
+        cipher = Fernet(api_key_encryption.encode())
 
         # initialize repositories
         analysis_config_repository = CountAnalysisConfigRepository(engine=db_engine)
