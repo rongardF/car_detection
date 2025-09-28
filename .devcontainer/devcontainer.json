@@ -5,7 +5,7 @@
     "docker-compose.yml"
   ],
   "service": "app",
-  "workspaceFolder": "/opt/app/",
+  "workspaceFolder": "/opt/app",
   "forwardPorts": [
     8000
   ],
@@ -35,7 +35,16 @@
           "adduser",
           "gecos",
           "redoc",
-          "YOLO"
+          "YOLO",
+          "frombuffer",
+          "imdecode",
+          "ndarray",
+          "xyxy",
+          "autoflush",
+          "writeaccess",
+          "readaccess",
+          "httpsredirect",
+          "fernet",
         ],
         "python.linting.pylintEnabled": true,
         "python.linting.pylintArgs": [

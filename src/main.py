@@ -7,8 +7,9 @@ from detector.doc import Tags
 
 app = create_fastapi_app(
     initializer=DetectorServiceInitializer,
-    title="VDS",
-    description="Vehicle detection service",
+    title="Auto Analyzer",
+    description="Automated analyzing service",
+    version="0.1.0",
     team_name="core",
     team_url="https://invalid-address.ee",
     openapi_tags=Tags.get_docs(),

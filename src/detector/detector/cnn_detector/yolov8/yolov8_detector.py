@@ -1,19 +1,19 @@
-from typing import List
-import pathlib
-import cv2
-import numpy as np
-import math
-from PIL.Image import fromarray
+from typing import Optional
+from pathlib import Path
+from numpy import ndarray
+from math import ceil
 
 from ultralytics import YOLO 
-from ultralytics.engine.results import Boxes
+from ultralytics.engine.results import Boxes, Results
 
 # local imports
-from ....interface import AbstractVehicleDetector
-from ....model import DetectionRequestDto, DetectionResultDto
+from ....interface import AbstractObjectDetector
+from ....model.enum import ObjectEnum
+from ....model.api import ObjectBoundingBox
+from ....exception import AnalyzerException
 
 
-class YoloDetector(AbstractVehicleDetector):
+class YoloDetector(AbstractObjectDetector):
     '''
     This detector is implemented using the YOLOv8 based on instructions
     found on https://medium.com/@martin.jurado.p/my-first-ai-project-with-yolo-real-time-object-detection-bc8669c583ab
@@ -31,98 +31,92 @@ class YoloDetector(AbstractVehicleDetector):
         "teddy bear", "hair drier", "toothbrush"
     ]
 
-    # indexes of the classes from above list which we try to detect
-    VECHICLE_INDEXES = [2, 3, 5, 7]
+    def __init__(
+            self, 
+            model_path: str = f"{Path(__file__).parent.resolve()}/yolo-Weights/yolov8n.pt",
+            confidence: int = 0.85
+        ):
+        """
+        Initialize YOLO object detector.
 
-    # pre-trained model by 'ultralytics'
-    PATH_TO_MODEL = (
-        f"{pathlib.Path(__file__).parent.resolve()}/yolo-Weights/yolov8n.pt"
-    )
-
-    def __init__(self):
-        self._model = YOLO(self.PATH_TO_MODEL)  # Load YOLOv8 model with pre-trained weights
+        :param model_path: path to YoLo model, defaults to pre-trained model by 'ultralytics'
+        :type model_path: str, optional
+        :param confidence: default confidence level for detection, defaults 85%
+        :type confidence: int, optional
+        """
+        self._model = YOLO(model_path)
+        self._confidence = confidence
     
-    def _extract_boundary_boxes(self, boxes: List[Boxes]) -> np.ndarray:
-        boundary_boxes = []
+    def _filter_and_sort_boxes(self, boxes: list[Boxes], objects: list[ObjectEnum], confidence: Optional[int] = None) -> dict[str, list[Boxes]]:
+        # if confidence not specified then use default
+        conf_level = confidence if confidence else self._confidence
 
+        # filter out only specified objects
+        object_names = [object.value for object in objects]
+        filtered_results = {object_name: [] for object_name in object_names}
         for box in boxes:
-            if int(box.cls[0]) not in self.VECHICLE_INDEXES:
-                continue  # only detect motor-vechicles on the image
+            try:
+                class_name = self.CLASS_NAMES[int(box.cls[0])]
+            except IndexError:
+                raise AnalyzerException("detector_failure_class_index_out_of_range")
+            
+            if class_name in object_names and box.conf[0] >= conf_level:
+                filtered_results[class_name].append(box)
 
-            x1, y1, x2, y2 = box.xyxy[0]
-            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)  # Convert to integer values
-
-            boundary_boxes.append(
-                [
-                    [x1, y1], 
-                    [x2, y2], 
-                ]
-            )
-
-        return np.array(boundary_boxes)
-
-    def _apply_overlay(
-        self, 
-        boxes: List[Boxes], 
-        image_array: np.ndarray,
-        include_confidence_label: bool
-    ) -> None:
-        # Iterate through each bounding box
-        for box in boxes:
-            if int(box.cls[0]) not in self.VECHICLE_INDEXES:
-                continue  # only detect motor-vechicles on the image
-
-            # Extract coordinates of the bounding box
-            x1, y1, x2, y2 = box.xyxy[0]
-            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)  # Convert to integer values
-
-            # Draw the bounding box on the frame
-            cv2.rectangle(
-                img=image_array, 
-                pt1=(x1, y1), 
-                pt2=(x2, y2), 
-                color=(255, 0, 255), 
-                thickness=3
-            )
-
-            if include_confidence_label:
-                # Overlay class name and confidence
-                confidence = math.ceil((box.conf[0]*100))/100
-                cls = int(box.cls[0])
-                text = f"{self.CLASS_NAMES[cls]}:{confidence}"
-
-                cv2.putText(
-                    img=image_array, 
-                    text=text, 
-                    org=[x1, y1], 
-                    fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
-                    fontScale=1, 
-                    color=(255, 0, 0), 
-                    thickness=2
-                )
+        return filtered_results
     
-    def detect_and_count(
-        self, detection_request: DetectionRequestDto
-    ) -> DetectionResultDto:
-        # copy and convert to numpy array
-        image_array = np.array(detection_request.image)
-
+    def count(self, image: ndarray, objects: list[ObjectEnum], confidence: Optional[int] = None) -> dict[ObjectEnum, int]:
         # infer objects from the image
-        result = self._model(image_array, stream=False)[0]
+        results: Results = self._model(image, stream=False)[0]
 
-        parameters = detection_request.process_request.parameters
-        if parameters.include_boundary_boxes:
-            self._apply_overlay(
-                boxes=result.boxes, 
-                image_array=image_array,
-                include_confidence_label=parameters.include_confidence
-            )
-
-        boundary_boxes = self._extract_boundary_boxes(result.boxes)
-
-        return DetectionResultDto(
-            detection_request=detection_request,
-            inferred_image=fromarray(image_array),
-            boundary_boxes=boundary_boxes,
-            count=len(boundary_boxes)
+        # filter out only specified objects
+        filtered_results = self._filter_and_sort_boxes(
+            boxes=results.boxes, 
+            objects=objects, 
+            confidence=confidence
         )
+        
+        # default return value
+        counting_results: dict[ObjectEnum, int] = {
+            object: 0 for object in objects
+        }
+
+        # count objects from results
+        for class_name, boxes in filtered_results.items():
+            object_enum = ObjectEnum(class_name)
+            counting_results[object_enum] += len(boxes)
+
+        return counting_results
+    
+    def detect(self, image: ndarray, objects: list[ObjectEnum], confidence: Optional[int] = None) -> dict[ObjectEnum, list[ObjectBoundingBox]]:
+        # infer objects from the image
+        results: Results= self._model(image, stream=False)[0]
+
+        # filter out only specified objects
+        filtered_results = self._filter_and_sort_boxes(
+            boxes=results.boxes, 
+            objects=objects, 
+            confidence=confidence
+        )
+
+        # default return value
+        detection_results: dict[ObjectEnum, list[ObjectBoundingBox]] = {
+            object: [] for object in objects
+        }
+
+        # group bounding boxes by object type
+        for class_name, boxes in filtered_results.items():
+            object_enum = ObjectEnum(class_name)
+
+            for box in boxes:
+                x1, y1, x2, y2 = box.xyxy[0]
+                detection_results[object_enum] += [
+                    ObjectBoundingBox(
+                        object_type=object_enum,
+                        confidence=ceil((box.conf[0]*100))/100,
+                        top_left=(int(x1), int(y1)),
+                        bottom_right=(int(x2), int(y2))
+                    )
+                ]
+            
+        return detection_results

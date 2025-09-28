@@ -17,6 +17,9 @@ services:
       # Update this to wherever you want VS Code to mount the folder of your project
       - .:/opt/app/:cached
 
+    depends_on:
+      - db
+
     ports:
       - "8001:8000"
 
@@ -32,3 +35,16 @@ services:
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
+  
+  db:
+    hostname: "detector_db"
+    image: "postgres:15-alpine"
+    ports:
+        - "5432:5432"
+    volumes:
+        - .devcontainer/postgres_bootstrap:/docker-entrypoint-initdb.d
+    environment:
+        PGPORT: "5432"
+        POSTGRES_DB: "db"
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "postgres"

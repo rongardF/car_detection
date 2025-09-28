@@ -17,7 +17,7 @@ FROM base AS devcontainer
 COPY .devcontainer/requirements.dev.txt /tmp/
 
 RUN --mount=type=cache,target=/root/.cache/pip  \
-    pip install -r /tmp/requirements.txt
+    pip install -r /tmp/requirements.dev.txt
 
 # copy everything
 COPY ./ /opt/app

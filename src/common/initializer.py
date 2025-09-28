@@ -4,9 +4,9 @@ from typing import Optional, Type, Mapping, Any
 from fastapi import FastAPI
 
 # local imports
+from .middleware import GlobalExceptionMiddleware
 from .config import Config
 from .engine_factory import EngineFactory
-from .exception import GlobalExceptionMiddleware
 
 
 class State(Mapping):
