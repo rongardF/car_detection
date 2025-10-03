@@ -1,10 +1,12 @@
-from .object_count_response import ObjectCountResponse
-
-from .analysis_config_base import AnalysisConfigBaseResponse, AnalysisConfigBaseRequest
-from .count_analysis_config import CountAnalysisConfigRequest, CountAnalysisConfigResponse
+# NOTE: API models depend on DTO models and have to be imported after importing
+# DTO models to avoid cyclic import error
+from .image_analysis_config_base import ImageAnalysisConfigBaseRequest, ImageAnalysisConfigBaseResponse
+from .object_analysis_config import ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse
 from .image_resolution import ImageResolution
 from .pixel_coordinate import PixelCoordinate
-from .object_bounding_box import ObjectBoundingBox
+
+from .object_count import ObjectCountResponse
+from .object_location import ObjectLocationResponse
 
 from .user import UserRequest, UserResponse
 from .api_key import APIKeyResponse

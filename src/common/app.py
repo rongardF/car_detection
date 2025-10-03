@@ -1,7 +1,9 @@
+from os import environ
 from typing import Type, Any
 from typing_extensions import Annotated, Doc
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # local imports
 from .middleware import GlobalExceptionMiddleware
@@ -62,8 +64,13 @@ def create_fastapi_app(
         lifespan=initializer,
         title=title,
         description=description,
+        version=version,
+        summary=summary,
         contact={"name": team_name, "url": team_url},
         exception_handlers={HTTPException: rest_exception_handler},
+        swagger_ui_parameters={
+            "defaultModelsExpandDepth": -1,  # collapse/remove schemas by default in swagger UI
+        },
         **fastapi_configs,
     )
 
@@ -73,6 +80,13 @@ def create_fastapi_app(
     # Required middleware
     # app.add_middleware(LoggingMiddleware)  # This is the most inner middleware right before the router.
     app.add_middleware(GlobalExceptionMiddleware)
-    # TODO: add 'CORSMiddleware' to avoid CORS errors on FE side
-
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=(
+            environ.get("CORS_ORIGINS").split(";") if environ.get("CORS_ORIGINS") is not None else []
+        ),
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     return app

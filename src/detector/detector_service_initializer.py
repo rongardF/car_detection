@@ -7,16 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from common.initializer import State, Initializer
 
 # local imports
-from .interface import AbstractObjectCounter, AbstractAnalyzeConfigManager
-from .service import ObjectCounter, ImageProcessor, AnalyzeCountConfigManager, AuthenticationManager
+from .interface import AbstractImageAnalyzer, AbstractAnalyzeImageConfigManager
+from .service import ImageAnalyzer, ImageProcessor, AnalyzeObjectConfigManager, AuthenticationManager
 from .detector import YoloDetector
 from .database import CountAnalysisConfigRepository, FrameMaskRepository, ObjectRepository, UserRepository, APIKeyRepository, JWTRepository
 
 
 class ServiceState(State):
     # services
-    object_counter: AbstractObjectCounter
-    analyze_count_config_manager: AbstractAnalyzeConfigManager
+    image_analyzer: AbstractImageAnalyzer
+    analyze_object_config_manager: AbstractAnalyzeImageConfigManager
     authentication_manager: AuthenticationManager
     # repositories
     db_engine: AsyncEngine
@@ -57,8 +57,8 @@ class DetectorServiceInitializer(Initializer):
             raise ValueError("no_detector_specified")
         
         image_processor = ImageProcessor()
-        object_counter = ObjectCounter(object_detector=detector, image_processor=image_processor)
-        analyze_count_config_manager = AnalyzeCountConfigManager(
+        image_analyzer = ImageAnalyzer(object_detector=detector, image_processor=image_processor)
+        analyze_object_config_manager = AnalyzeObjectConfigManager(
             frame_mask_repository=frame_mask_repository,
             object_repository=object_repository,
             count_analysis_config_repository=analysis_config_repository
@@ -72,8 +72,8 @@ class DetectorServiceInitializer(Initializer):
 
         return ServiceState(
             **state,
-            object_counter=object_counter,
-            analyze_count_config_manager=analyze_count_config_manager,
+            image_analyzer=image_analyzer,
+            analyze_object_config_manager=analyze_object_config_manager,
             authentication_manager=authentication_manager,
             db_engine=db_engine,
             user_repository=user_repository,

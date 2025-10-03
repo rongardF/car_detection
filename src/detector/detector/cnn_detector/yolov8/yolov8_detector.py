@@ -9,7 +9,7 @@ from ultralytics.engine.results import Boxes, Results
 # local imports
 from ....interface import AbstractObjectDetector
 from ....model.enum import ObjectEnum
-from ....model.api import ObjectBoundingBox
+from ....model.dto import ObjectBoundingBoxDto, PixelCoordinateDto
 from ....exception import AnalyzerException
 
 
@@ -88,7 +88,7 @@ class YoloDetector(AbstractObjectDetector):
 
         return counting_results
     
-    def detect(self, image: ndarray, objects: list[ObjectEnum], confidence: Optional[int] = None) -> dict[ObjectEnum, list[ObjectBoundingBox]]:
+    def detect(self, image: ndarray, objects: list[ObjectEnum], confidence: Optional[int] = None) -> dict[ObjectEnum, list[ObjectBoundingBoxDto]]:
         # infer objects from the image
         results: Results= self._model(image, stream=False)[0]
 
@@ -100,7 +100,7 @@ class YoloDetector(AbstractObjectDetector):
         )
 
         # default return value
-        detection_results: dict[ObjectEnum, list[ObjectBoundingBox]] = {
+        detection_results: dict[ObjectEnum, list[ObjectBoundingBoxDto]] = {
             object: [] for object in objects
         }
 
@@ -111,11 +111,17 @@ class YoloDetector(AbstractObjectDetector):
             for box in boxes:
                 x1, y1, x2, y2 = box.xyxy[0]
                 detection_results[object_enum] += [
-                    ObjectBoundingBox(
+                    ObjectBoundingBoxDto(
                         object_type=object_enum,
-                        confidence=ceil((box.conf[0]*100))/100,
-                        top_left=(int(x1), int(y1)),
-                        bottom_right=(int(x2), int(y2))
+                        confidence=ceil((box.conf[0]*100)),
+                        top_left=PixelCoordinateDto(
+                            width=int(x1),
+                            height=int(y1)
+                        ),
+                        bottom_right=PixelCoordinateDto(
+                            width=int(x2),
+                            height=int(y2)
+                        )
                     )
                 ]
             

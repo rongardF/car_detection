@@ -1,2 +1,2 @@
-from .service import AbstractImageProcessor, AbstractAnalyzeConfigManager, AbstractObjectCounter
+from .service import AbstractImageProcessor, AbstractAnalyzeImageConfigManager, AbstractImageAnalyzer
 from .detector import AbstractObjectDetector
