@@ -5,27 +5,28 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 # local imports
-from ..model import User
+from ..model import ObjectAnalysisConfig
 from .base_repository import BaseRepository
 
 
-class UserRepository(BaseRepository[User]):
+class ObjectAnalysisConfigRepository(BaseRepository[ObjectAnalysisConfig]):
     
     def __init__(self, engine):
-        super().__init__(engine, User)
+        super().__init__(engine, ObjectAnalysisConfig)
 
-    async def get_by_email(self, email: str) -> Sequence[User]:
+    async def get_all_for_account_id(self, account_id: UUID) -> Sequence[ObjectAnalysisConfig]:
         """
-        Fetch entities from database which have a matching 'email' field
-
-        :param email: Email field value
-        :type email: str
-        :return: Entities with matching UUIDs
-        :rtype: Sequence[User]
+        Fetch all entities from the database which have a reference (foreign key)
+        to specified account ID.
+        
+        :param account_id: Account ID to filter with
+        :type account_id: UUID
+        :return: List of entities (rows)
+        :rtype: Sequence[ObjectAnalysisConfig]
         """
         async with self._get_session() as session:
-            statements = select(self._model).where(self._model.email==email)
-            scalars = await session.scalars(statements)
+            query = select(self._model).where(self._model.account_id==account_id)
+            scalars = await session.scalars(query)
             result = scalars.unique().all()
 
         return result

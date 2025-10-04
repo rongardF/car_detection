@@ -1,1 +1,1 @@
-from .api import AnalyzerException, AnalyzeBadRequestException, FileInvalidException, MaskInvalidException, ConfigureNotFoundException, ConfigureBadRequestException, AnalyzeNotFoundException, AccountUnAuthorizedException, AccountNotFoundException, AccountBadRequestException
+from .api import AnalyzerException, AnalyzeBadRequestException, FileInvalidException, MaskInvalidException, ConfigureNotFoundException, ConfigureBadRequestException, AnalyzeNotFoundException, AccountUnAuthorizedException, AccountNotFoundException, AccountBadRequestException, AccountEmailRegistered

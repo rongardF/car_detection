@@ -16,9 +16,9 @@ class FrameMask(Base):
     pixel_height: Mapped[int] = mapped_column(
         "pixel_height", nullable=False
     )
-    count_analysis_config: Mapped[UUID] = mapped_column(
-        "count_analysis_config_uuid", ForeignKey("count_analysis_config.uuid", ondelete="CASCADE"), nullable=False
+    object_analysis_config: Mapped[UUID] = mapped_column(
+        "object_analysis_config_uuid", ForeignKey("object_analysis_config.uuid", ondelete="CASCADE"), nullable=False
     )
 
     def __repr__(self) -> str:
-        return f"FrameMask(pixel_width={self.pixel_width},pixel_height={self.pixel_height},count_analysis_config={self.count_analysis_config})"
+        return f"FrameMask(pixel_width={self.pixel_width},pixel_height={self.pixel_height},object_analysis_config={self.object_analysis_config})"

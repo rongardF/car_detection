@@ -26,10 +26,10 @@ router = APIRouter(tags=[Tags.CONFIGURE, Tags.IMAGE], prefix="/v1/configure/imag
 )
 async def add_config(
     request: ObjectAnalysisConfigRequest,
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> ObjectAnalysisConfigResponse:
-    return await analyze_object_config_manager.add_config(user_id=user_id, request=request)
+    return await analyze_object_config_manager.add_config(account_id=account_id, request=request)
 
 
 @router.get(
@@ -44,10 +44,10 @@ async def add_config(
 )
 async def get_config(
     configId: UUID,
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> ObjectAnalysisConfigResponse:
-    return await analyze_object_config_manager.get_config(user_id=user_id, config_id=configId)
+    return await analyze_object_config_manager.get_config(account_id=account_id, config_id=configId)
 
 @router.get(
     path="/object",
@@ -59,10 +59,10 @@ async def get_config(
     },
 )
 async def get_all_configs(
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> list[ObjectAnalysisConfigResponse]:
-    return await analyze_object_config_manager.get_all_configs(user_id=user_id)
+    return await analyze_object_config_manager.get_all_configs(account_id=account_id)
 
 @router.patch(
     path="/object/{configId}",
@@ -78,10 +78,10 @@ async def get_all_configs(
 async def update_config(
     configId: UUID,
     request: ObjectAnalysisConfigRequest,
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> ObjectAnalysisConfigResponse:
-    return await analyze_object_config_manager.update_config(user_id=user_id, config_id=configId, request=request)
+    return await analyze_object_config_manager.update_config(account_id=account_id, config_id=configId, request=request)
 
 
 @router.delete(
@@ -96,8 +96,8 @@ async def update_config(
 )
 async def delete_config(
     configId: UUID,
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> None:
-    return await analyze_object_config_manager.delete_config(user_id=user_id, config_id=configId)
+    return await analyze_object_config_manager.delete_config(account_id=account_id, config_id=configId)
 # endregion: object

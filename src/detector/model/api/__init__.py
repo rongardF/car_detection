@@ -8,6 +8,6 @@ from .pixel_coordinate import PixelCoordinate
 from .object_count import ObjectCountResponse
 from .object_location import ObjectLocationResponse
 
-from .user import UserRequest, UserResponse
+from .account import AccountRequest, AccountResponse
 from .api_key import APIKeyResponse
 from .token import AccessTokenResponse, RefreshTokenRequest

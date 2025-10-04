@@ -9,13 +9,13 @@ from common import Injects
 from common.exception.repository_exception import NotFoundException
 
 # local imports
-from ...authentication import authenticate, password_hash_match, create_access_token, create_refresh_token, verify_token, generate_api_key, get_api_key_hash, api_key_hash_match
+from ...authentication import authenticate, password_hash_match, create_access_token, create_refresh_token, verify_token, generate_api_key, get_api_key_hash
 from ...doc import Tags
-from ...database import APIKeyRepository, UserRepository, JWTRepository
+from ...database import APIKeyRepository, AccountRepository, JWTRepository
 from ...model.api import APIKeyResponse, AccessTokenResponse, RefreshTokenRequest
 from ...exception import AnalyzerException, AccountBadRequestException, AccountNotFoundException, AccountUnAuthorizedException
 
-router = APIRouter(tags=[Tags.ACCOUNT], prefix="/v1/user/authentication")
+router = APIRouter(tags=[Tags.ACCOUNT], prefix="/v1/account/authentication")
 
 
 # region: api-key
@@ -31,7 +31,7 @@ router = APIRouter(tags=[Tags.ACCOUNT], prefix="/v1/user/authentication")
     },
 )
 async def generate_key(
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
     cipher: Fernet = Injects("cipher"),
 ) -> APIKeyResponse:
@@ -40,7 +40,7 @@ async def generate_key(
     hashed_key = get_api_key_hash(key)
     api_key = await api_key_repository.create(
         values={
-            "user_id": user_id,
+            "account_id": account_id,
             "hashed_key": hashed_key,
             "encrypted_key": encrypted_key
         }
@@ -64,11 +64,11 @@ async def generate_key(
     },
 )
 async def get_keys(
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
     cipher: Fernet = Injects("cipher"),
 ) -> list[APIKeyResponse]:
-    api_key_entities = await api_key_repository.get_by_user_id(user_id=user_id)
+    api_key_entities = await api_key_repository.get_by_account_id(account_id=account_id)
     return [
         APIKeyResponse(id=key.id,key=cipher.decrypt(key.encrypted_key).decode())
         for key in api_key_entities
@@ -88,11 +88,11 @@ async def get_keys(
 )
 async def delete_key(
     api_key_uuid: UUID,
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
 ) -> None:
     try:
-        return await api_key_repository.delete_with_user_id(entity_id=api_key_uuid, user_id=user_id)
+        return await api_key_repository.delete_with_account_id(entity_id=api_key_uuid, account_id=account_id)
     except NotFoundException:
         raise AccountBadRequestException()
 # endregion: api-key
@@ -112,39 +112,39 @@ async def delete_key(
 )
 async def generate_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    user_repository: UserRepository = Injects("user_repository"),
+    account_repository: AccountRepository = Injects("account_repository"),
     jwt_repository: JWTRepository = Injects("jwt_repository")
 ) -> AccessTokenResponse:
     try:
-        user_entities = await user_repository.get_by_email(email=form_data.username)
+        account_entities = await account_repository.get_by_email(email=form_data.username)
     except NotFoundException:
         raise AccountUnAuthorizedException()
     
-    if len(user_entities) == 0:
+    if len(account_entities) == 0:
         raise AccountNotFoundException()
-    if len(user_entities) != 1:
-        # there cannot be more than one user with this email!
+    if len(account_entities) != 1:
+        # there cannot be more than one account with this email!
         raise AnalyzerException()  # FIXME: make this custom exception
     else:
-        user_entity = user_entities[0]
+        account_entity = account_entities[0]
 
-    if not password_hash_match(form_data.password, user_entity.hashed_password):
+    if not password_hash_match(form_data.password, account_entity.hashed_password):
         raise AccountUnAuthorizedException()
     
     # NOTE: only one device can be logged in at any given time because we
-    # clear the repository for the user per each login
-    await jwt_repository.delete_by_user_id(user_id=user_entity.id)
+    # clear the repository for the account per each login
+    await jwt_repository.delete_by_account_id(account_id=account_entity.id)
     
     access_token = create_access_token(
-        data={"sub": str(user_entity.id)}
+        data={"sub": str(account_entity.id)}
     )
     refresh_token = create_refresh_token(
-        data={"sub": str(user_entity.id)}
+        data={"sub": str(account_entity.id)}
     )
 
     jwt_entity = await jwt_repository.create(
         values={
-            "user_id": user_entity.id,
+            "account_id": account_entity.id,
             "access_token": access_token,
             "refresh_token": refresh_token,
         }
@@ -169,25 +169,25 @@ async def generate_token(
 )
 async def refresh_token(
     request: RefreshTokenRequest,
-    authenticated_user_id: UUID = Depends(authenticate),
+    authenticated_account_id: UUID = Depends(authenticate),
     jwt_repository: JWTRepository = Injects("jwt_repository")
 ) -> AccessTokenResponse:
-    user_id = verify_token(token=request.refresh_token, type="refresh")
-    if authenticated_user_id != user_id:
+    account_id = verify_token(token=request.refresh_token, type="refresh")
+    if authenticated_account_id != account_id:
         raise AccountUnAuthorizedException()
 
     # because refresh token is generated by us then it is guaranteed
-    # that user ID is valid and not corrupted - we don't need to fetch user model again
+    # that account ID is valid and not corrupted - we don't need to fetch account model again
 
     access_token = create_access_token(
-        data={"sub": str(user_id)}
+        data={"sub": str(account_id)}
     )
     refresh_token = create_refresh_token(
-        data={"sub": str(user_id)}
+        data={"sub": str(account_id)}
     )
 
-    jwt_entities = await jwt_repository.update_by_user_id(
-        user_id=user_id,
+    jwt_entities = await jwt_repository.update_by_account_id(
+        account_id=account_id,
         values={
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -195,7 +195,7 @@ async def refresh_token(
     )
 
     if len(jwt_entities) != 1:
-        # there cannot be more than one JWT entity per user!
+        # there cannot be more than one JWT entity per account!
         raise AnalyzerException()  # FIXME: make this custom exception
     else:
         jwt_entity = jwt_entities[0]
@@ -218,8 +218,8 @@ async def refresh_token(
     },
 )
 async def terminate_token(
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     jwt_repository: JWTRepository = Injects("jwt_repository")
 ) -> None:
-    await jwt_repository.delete_by_user_id(user_id=user_id)
+    await jwt_repository.delete_by_account_id(account_id=account_id)
 # endregion: token

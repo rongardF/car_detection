@@ -23,7 +23,7 @@ ALGORITHM = environ.get("ALGORITHM")
 API_KEY_LENGTH = int(environ.get("API_KEY_LENGTH"))
 
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/authentication/generate_token", refreshUrl="/v1/user/authentication/refresh_token", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/account/authentication/generate_token", refreshUrl="/v1/account/authentication/refresh_token", auto_error=False)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -37,7 +37,7 @@ async def authenticate(
         try:
             hashed_key = get_api_key_hash(api_key)
             api_key_entity = await api_key_repository.get_by_hashed_key(hashed_key=hashed_key)
-            return api_key_entity.user_id
+            return api_key_entity.account_id
         except NotFoundException:
             raise AccountUnAuthorizedException()
         
@@ -115,10 +115,10 @@ def verify_token(
             secret_key = REFRESH_SECRET_KEY
 
         payload: dict = decode(token, secret_key, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if user_id is None:
+        account_id = payload.get("sub")
+        if account_id is None:
             raise AccountUnAuthorizedException()
     except InvalidTokenError:
         raise AccountUnAuthorizedException()
 
-    return UUID(user_id)
+    return UUID(account_id)
