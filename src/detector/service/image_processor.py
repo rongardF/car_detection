@@ -6,8 +6,7 @@ from fastapi import UploadFile
 
 # local imports
 from ..interface import AbstractImageProcessor
-from ..model.api import ObjectBoundingBox, PixelCoordinate
-from ..model.api import ImageResolution
+from ..model.api import ImageResolution, PixelCoordinate, ObjectLocationResponse
 from ..exception import MaskInvalidException, FileInvalidException
 
 
@@ -40,7 +39,7 @@ class ImageProcessor(AbstractImageProcessor):
     def draw_bounding_boxes(
         self,
         image: ndarray,
-        bounding_boxes: list[ObjectBoundingBox],
+        bounding_boxes: list[ObjectLocationResponse],
         make_image_copy: bool = False,
         include_confidence_label: bool = True,
         thickness: int = 3,

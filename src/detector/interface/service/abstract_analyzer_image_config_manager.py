@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 from uuid import UUID
 
-from ...model.api import AnalysisConfigBaseRequest, AnalysisConfigBaseResponse
+from ...model.api import ImageAnalysisConfigBaseRequest, ImageAnalysisConfigBaseResponse
 
-REQUEST = TypeVar("REQUEST", bound=AnalysisConfigBaseRequest)
-RESPONSE = TypeVar("RESPONSE", bound=AnalysisConfigBaseResponse)
+REQUEST = TypeVar("REQUEST", bound=ImageAnalysisConfigBaseRequest)
+RESPONSE = TypeVar("RESPONSE", bound=ImageAnalysisConfigBaseResponse)
 
 
-class AbstractAnalyzeConfigManager(ABC, Generic[REQUEST, RESPONSE]):
+class AbstractAnalyzeImageConfigManager(ABC, Generic[REQUEST, RESPONSE]):
 
     @abstractmethod
     async def add_config(self, user_id: UUID, request: REQUEST) -> RESPONSE:

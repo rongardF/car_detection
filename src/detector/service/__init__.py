@@ -1,4 +1,4 @@
 from .image_processor import ImageProcessor
-from .object_counter import ObjectCounter
-from .analyze_count_config_manager import AnalyzeCountConfigManager
+from .image_analyzer import ImageAnalyzer
+from .analyze_object_config_manager import AnalyzeObjectConfigManager
 from .authentication_manager import AuthenticationManager

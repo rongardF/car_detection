@@ -3,8 +3,8 @@ from numpy import ndarray
 from fastapi import UploadFile
 
 # local imports
-from ...model.dto import ObjectBoundingBoxDto
 from ...model.dto import ImageResolutionDto
+from ...model.api import ObjectLocationResponse
 
 
 class AbstractImageProcessor(ABC):
@@ -20,7 +20,7 @@ class AbstractImageProcessor(ABC):
     def draw_bounding_boxes(
         self,
         image: ndarray,
-        bounding_boxes: list[ObjectBoundingBoxDto],
+        bounding_boxes: list[ObjectLocationResponse],
         make_image_copy: bool = False,
         include_confidence_label: bool = True,
         thickness: int = 3,

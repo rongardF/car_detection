@@ -5,3 +5,5 @@ class Tags(TagEnum):
     ANALYZE = Tag(name="Analyze")
     CONFIGURE = Tag(name="Configure")
     ACCOUNT = Tag(name="Account")
+
+    IMAGE = Tag(name="Image")
