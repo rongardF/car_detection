@@ -27,16 +27,16 @@ router = APIRouter(tags=[Tags.ANALYZE, Tags.IMAGE], prefix="/v1/analyze/image")
 )
 async def count_objects(
     file: Annotated[UploadFile, File(title="Detection image")],
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     analysisConfigId: UUID = Form(UUID("3fa85f64-5717-4562-b3fc-2c963f66afa6"), title="Analysis configuration ID"),
     image_analyzer: AbstractImageAnalyzer = Injects("image_analyzer"),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> list[ObjectCountResponse]:
     try:
-        analysis_config = await analyze_object_config_manager.get_config(user_id=user_id, config_id=analysisConfigId)
+        analysis_config = await analyze_object_config_manager.get_config(account_id=account_id, config_id=analysisConfigId)
     except ConfigureNotFoundException:
         raise AnalyzeNotFoundException(detail="configuration_entity_not_found")
-    return await image_analyzer.count_objects(file=file, count_analysis=analysis_config)
+    return await image_analyzer.count_objects(file=file, object_analysis_config=analysis_config)
 
 
 @router.post(
@@ -52,14 +52,14 @@ async def count_objects(
 )
 async def locate_objects(
     file: Annotated[UploadFile, File(title="Detection image")],
-    user_id: UUID = Depends(authenticate),
+    account_id: UUID = Depends(authenticate),
     analysisConfigId: UUID = Form(UUID("3fa85f64-5717-4562-b3fc-2c963f66afa6"), title="Analysis configuration ID"),
     image_analyzer: AbstractImageAnalyzer = Injects("image_analyzer"),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> list[ObjectLocationResponse]:
     try:
-        analysis_config = await analyze_object_config_manager.get_config(user_id=user_id, config_id=analysisConfigId)
+        analysis_config = await analyze_object_config_manager.get_config(account_id=account_id, config_id=analysisConfigId)
     except ConfigureNotFoundException:
         raise AnalyzeNotFoundException(detail="configuration_entity_not_found")
-    return await image_analyzer.located_objects(file=file, count_analysis=analysis_config)
+    return await image_analyzer.locate_objects(file=file, object_analysis_config=analysis_config)
 # endregion: image

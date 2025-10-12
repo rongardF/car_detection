@@ -12,6 +12,12 @@ class AccountBadRequestException(AnalyzerException):
     def __init__(self, detail: Any = "account_endpoint_bad_request"):
         super().__init__(detail=detail)
 
+class AccountEmailRegistered(AccountBadRequestException):
+    status = HTTPStatus.BAD_REQUEST
+
+    def __init__(self, detail: Any = "account_email_already_registered"):
+        super().__init__(detail=detail)
+
 
 # base exception to group and catch all account endpoint not found related exceptions
 class AccountNotFoundException(AnalyzerException):

@@ -5,28 +5,27 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 # local imports
-from ..model import CountAnalysisConfig
+from ..model import Account
 from .base_repository import BaseRepository
 
 
-class CountAnalysisConfigRepository(BaseRepository[CountAnalysisConfig]):
+class AccountRepository(BaseRepository[Account]):
     
     def __init__(self, engine):
-        super().__init__(engine, CountAnalysisConfig)
+        super().__init__(engine, Account)
 
-    async def get_all_for_user_id(self, user_id: UUID) -> Sequence[CountAnalysisConfig]:
+    async def get_by_email(self, email: str) -> Sequence[Account]:
         """
-        Fetch all entities from the database which have a reference (foreign key)
-        to specified user ID.
-        
-        :param user_id: User ID to filter with
-        :type user_id: UUID
-        :return: List of entities (rows)
-        :rtype: Sequence[CountAnalysisConfig]
+        Fetch entities from database which have a matching 'email' field
+
+        :param email: Email field value
+        :type email: str
+        :return: Entities with matching UUIDs
+        :rtype: Sequence[Account]
         """
         async with self._get_session() as session:
-            query = select(self._model).where(self._model.user_id==user_id)
-            scalars = await session.scalars(query)
+            statements = select(self._model).where(self._model.email==email)
+            scalars = await session.scalars(statements)
             result = scalars.unique().all()
 
         return result

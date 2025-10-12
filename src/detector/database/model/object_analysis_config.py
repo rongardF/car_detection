@@ -4,11 +4,11 @@ from uuid import UUID
 from common.database import Base
 
 
-class CountAnalysisConfig(Base):
-    __tablename__ = "count_analysis_config"
+class ObjectAnalysisConfig(Base):
+    __tablename__ = "object_analysis_config"
 
-    user_id: Mapped[UUID] = mapped_column(
-        "user_uuid", nullable=False,
+    account_id: Mapped[UUID] = mapped_column(
+        "account_uuid", nullable=False,
     )
     image_resolution_width: Mapped[int] = mapped_column(
         "resolution_width", nullable=False
@@ -21,4 +21,4 @@ class CountAnalysisConfig(Base):
     )
 
     def __repr__(self) -> str:
-        return f"CountAnalysisConfig(image_resolution_width={self.image_resolution_width},image_resolution_height={self.image_resolution_height},confidence={self.confidence})"
+        return f"ObjectAnalysisConfig(account={self.account_id},image_resolution_width={self.image_resolution_width},image_resolution_height={self.image_resolution_height},confidence={self.confidence})"

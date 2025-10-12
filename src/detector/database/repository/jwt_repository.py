@@ -40,13 +40,13 @@ class JWTRepository(BaseRepository[JWTToken]):
 
         return result[0]
 
-    async def update_by_user_id(self, user_id: UUID, values: Dict[str, Any]) -> Sequence[JWTToken]:
+    async def update_by_account_id(self, account_id: UUID, values: Dict[str, Any]) -> Sequence[JWTToken]:
         """
         Update all entities from the database which have a reference (foreign key)
-        to specified user ID entity.
+        to specified account ID entity.
         
-        :param user_id: User entity UUID to filter with
-        :type user_id: UUID
+        :param account_id: Account entity UUID to filter with
+        :type account_id: UUID
         :param values: Values/fields to be updated
         :type values: Dict[str, Any]
         :return: List of entities (rows)
@@ -54,7 +54,7 @@ class JWTRepository(BaseRepository[JWTToken]):
         """
         async with self._get_session() as session:
             values = {**values, "updated_at": datetime.now(timezone.utc)}
-            query = update(self._model).where(self._model.user_id == user_id).values(values).returning(self._model.id)
+            query = update(self._model).where(self._model.account_id == account_id).values(values).returning(self._model.id)
 
             try:
                 scalars = await session.scalars(query)
@@ -65,15 +65,15 @@ class JWTRepository(BaseRepository[JWTToken]):
 
         return await self.get_multiple(result)
     
-    async def delete_by_user_id(self, user_id: UUID) -> None:
+    async def delete_by_account_id(self, account_id: UUID) -> None:
         """
-        Delete all entities in database that match 'user_id' field
+        Delete all entities in database that match 'account_id' field
 
-        :param user_id: UUID of the user_id field
-        :type user_id: UUID
+        :param account_id: UUID of the account_id field
+        :type account_id: UUID
         """
         async with self._get_session() as session:
-            statements = delete(JWTToken).where(JWTToken.user_id == user_id)
+            statements = delete(JWTToken).where(JWTToken.account_id == account_id)
             await session.execute(statements)
             try:
                 await session.commit()

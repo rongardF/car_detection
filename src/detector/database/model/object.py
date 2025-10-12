@@ -15,9 +15,9 @@ class Object(Base):
     value: Mapped[ObjectEnum] = mapped_column(
         "value", nullable=False
     )
-    count_analysis_config: Mapped[UUID] = mapped_column(
-        "count_analysis_config_uuid", ForeignKey("count_analysis_config.uuid", ondelete="CASCADE"), nullable=False
+    object_analysis_config: Mapped[UUID] = mapped_column(
+        "object_analysis_config_uuid", ForeignKey("object_analysis_config.uuid", ondelete="CASCADE"), nullable=False
     )
 
     def __repr__(self) -> str:
-        return f"Object(value={self.value},count_analysis_config={self.count_analysis_config})"
+        return f"Object(value={self.value},object_analysis_config={self.object_analysis_config})"

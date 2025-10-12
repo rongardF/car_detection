@@ -9,8 +9,8 @@ from common.database import Base
 class APIKey(Base):
     __tablename__ = "api_key"
 
-    user_id: Mapped[UUID] = mapped_column(
-        "user_id", ForeignKey("user.uuid", ondelete="CASCADE"), nullable=False
+    account_id: Mapped[UUID] = mapped_column(
+        "account_id", ForeignKey("account.uuid", ondelete="CASCADE"), nullable=False
     )
     encrypted_key: Mapped[bytes] = mapped_column(
         "key", nullable=False
@@ -20,4 +20,4 @@ class APIKey(Base):
     )
 
     def __repr__(self) -> str:
-        return f"APIKey(user_id={self.user_id},hashed_key={self.hashed_key},encrypted_key={self.encrypted_key})"
+        return f"APIKey(account_id={self.account_id},hashed_key={self.hashed_key},encrypted_key={self.encrypted_key})"

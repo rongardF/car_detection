@@ -10,7 +10,7 @@ from common.initializer import State, Initializer
 from .interface import AbstractImageAnalyzer, AbstractAnalyzeImageConfigManager
 from .service import ImageAnalyzer, ImageProcessor, AnalyzeObjectConfigManager, AuthenticationManager
 from .detector import YoloDetector
-from .database import CountAnalysisConfigRepository, FrameMaskRepository, ObjectRepository, UserRepository, APIKeyRepository, JWTRepository
+from .database import ObjectAnalysisConfigRepository, FrameMaskRepository, ObjectRepository, AccountRepository, APIKeyRepository, JWTRepository
 
 
 class ServiceState(State):
@@ -20,7 +20,7 @@ class ServiceState(State):
     authentication_manager: AuthenticationManager
     # repositories
     db_engine: AsyncEngine
-    user_repository: UserRepository
+    account_repository: AccountRepository
     api_key_repository: APIKeyRepository
     jwt_repository: JWTRepository
     # utilities
@@ -42,10 +42,10 @@ class DetectorServiceInitializer(Initializer):
         cipher = Fernet(api_key_encryption.encode())
 
         # initialize repositories
-        analysis_config_repository = CountAnalysisConfigRepository(engine=db_engine)
+        analysis_config_repository = ObjectAnalysisConfigRepository(engine=db_engine)
         frame_mask_repository = FrameMaskRepository(engine=db_engine)
         object_repository = ObjectRepository(engine=db_engine)
-        user_repository = UserRepository(engine=db_engine)
+        account_repository = AccountRepository(engine=db_engine)
         api_key_repository = APIKeyRepository(engine=db_engine)
         jwt_repository = JWTRepository(engine=db_engine)
 
@@ -61,7 +61,7 @@ class DetectorServiceInitializer(Initializer):
         analyze_object_config_manager = AnalyzeObjectConfigManager(
             frame_mask_repository=frame_mask_repository,
             object_repository=object_repository,
-            count_analysis_config_repository=analysis_config_repository
+            object_analysis_config_repository=analysis_config_repository
         )
         authentication_manager = AuthenticationManager(
             config=state.config, 
@@ -76,7 +76,7 @@ class DetectorServiceInitializer(Initializer):
             analyze_object_config_manager=analyze_object_config_manager,
             authentication_manager=authentication_manager,
             db_engine=db_engine,
-            user_repository=user_repository,
+            account_repository=account_repository,
             api_key_repository=api_key_repository,
             jwt_repository=jwt_repository,
             cipher=cipher,

@@ -11,21 +11,21 @@ RESPONSE = TypeVar("RESPONSE", bound=ImageAnalysisConfigBaseResponse)
 class AbstractAnalyzeImageConfigManager(ABC, Generic[REQUEST, RESPONSE]):
 
     @abstractmethod
-    async def add_config(self, user_id: UUID, request: REQUEST) -> RESPONSE:
+    async def add_config(self, account_id: UUID, request: REQUEST) -> RESPONSE:
         raise NotImplementedError()
     
     @abstractmethod
-    async def get_config(self, user_id: UUID, config_id: UUID) -> RESPONSE:
+    async def get_config(self, account_id: UUID, config_id: UUID) -> RESPONSE:
         raise NotImplementedError()
     
     @abstractmethod
-    async def get_all_configs(self, user_id: UUID) -> RESPONSE:
+    async def get_all_configs(self, account_id: UUID) -> RESPONSE:
         raise NotImplementedError()
     
     @abstractmethod
-    async def update_config(self, user_id: UUID, config_id: UUID, request: REQUEST) -> RESPONSE:
+    async def update_config(self, account_id: UUID, config_id: UUID, request: REQUEST) -> RESPONSE:
         raise NotImplementedError()
     
     @abstractmethod
-    async def delete_config(self, user_id: UUID, config_id: UUID) -> None:
+    async def delete_config(self, account_id: UUID, config_id: UUID) -> None:
         raise NotImplementedError()
