@@ -35,8 +35,7 @@ def get_database_url() -> str:
     db_database = conf.require_config(f"{db_prefix}_NAME")
     db_user = conf.require_config(f"{db_prefix}_MIGRATION_USER")
     db_password = conf.require_config(f"{db_prefix}_MIGRATION_PASSWORD")
-    # return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}?sslmode=require"  # if working with local POSTGRES container then perhaps removing '?sslmode=require' is needed
-    return "postgresql://user_migrate:8Owl6F8PNTX3bWam974Mve93tHKWqWKP@dpg-d3lmkcp5pdvs73akjri0-a.frankfurt-postgres.render.com/db_gvt9?sslmode=require"
+    return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}?sslmode=require"  # if working with local POSTGRES container then perhaps removing '?sslmode=require' is needed
 
 
 config.set_main_option("sqlalchemy.url", get_database_url())
