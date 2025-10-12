@@ -4,4 +4,4 @@ test_images/
 src/__pycache__/
 src/computer_vision/__pycache__/
 .env
-yolo-Weights
+/src/detector/detector/cnn_detector/yolov8/yolo-Weights/*
