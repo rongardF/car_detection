@@ -36,7 +36,7 @@ async def count_objects(
         analysis_config = await analyze_object_config_manager.get_config(account_id=account_id, config_id=analysisConfigId)
     except ConfigureNotFoundException:
         raise AnalyzeNotFoundException(detail="configuration_entity_not_found")
-    return await image_analyzer.count_objects(file=file, count_analysis=analysis_config)
+    return await image_analyzer.count_objects(file=file, object_analysis_config=analysis_config)
 
 
 @router.post(
@@ -61,5 +61,5 @@ async def locate_objects(
         analysis_config = await analyze_object_config_manager.get_config(account_id=account_id, config_id=analysisConfigId)
     except ConfigureNotFoundException:
         raise AnalyzeNotFoundException(detail="configuration_entity_not_found")
-    return await image_analyzer.locate_objects(file=file, count_analysis=analysis_config)
+    return await image_analyzer.locate_objects(file=file, object_analysis_config=analysis_config)
 # endregion: image

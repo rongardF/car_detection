@@ -11,6 +11,9 @@ COPY requirements.txt /tmp/
 RUN --mount=type=cache,target=/root/.cache/pip  \
     pip install -r /tmp/requirements.txt
 
+RUN apt-get update
+RUN apt-get install libgl1 -y
+
 FROM base AS devcontainer
 
 # install packages for dev
