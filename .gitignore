@@ -5,3 +5,4 @@ src/__pycache__/
 src/computer_vision/__pycache__/
 .env
 /src/detector/detector/cnn_detector/yolov8/yolo-Weights/*
+!.gitkeep
