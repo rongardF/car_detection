@@ -44,6 +44,3 @@ RUN adduser --disabled-password --disabled-login --gecos "" app
 RUN chown app:app /opt/app
 
 WORKDIR /opt/app/src
-
-# change from root user to non-root user (commands after this are run as 'app' user)
-USER app
