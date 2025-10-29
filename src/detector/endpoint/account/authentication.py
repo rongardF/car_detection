@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Annotated
 
 from cryptography.fernet import Fernet
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Security, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from common import Injects
@@ -12,6 +12,7 @@ from common.exception.repository_exception import NotFoundException
 from ...authentication import authenticate, password_hash_match, create_access_token, create_refresh_token, verify_token, generate_api_key, get_api_key_hash
 from ...doc import Tags
 from ...database import APIKeyRepository, AccountRepository, JWTRepository
+from ...model.enum import AuthorizationScopeEnum
 from ...model.api import APIKeyResponse, AccessTokenResponse, RefreshTokenRequest
 from ...exception import AnalyzerException, AccountBadRequestException, AccountNotFoundException, AccountUnAuthorizedException
 
@@ -31,7 +32,7 @@ router = APIRouter(tags=[Tags.ACCOUNT], prefix="/v1/account/authentication")
     },
 )
 async def generate_key(
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
     cipher: Fernet = Injects("cipher"),
 ) -> APIKeyResponse:
@@ -42,6 +43,7 @@ async def generate_key(
         values={
             "account_id": account_id,
             "hashed_key": hashed_key,
+            "scopes": AuthorizationScopeEnum.ANALYZE.value,
             "encrypted_key": encrypted_key
         }
     )
@@ -64,7 +66,7 @@ async def generate_key(
     },
 )
 async def get_keys(
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
     cipher: Fernet = Injects("cipher"),
 ) -> list[APIKeyResponse]:
@@ -88,7 +90,7 @@ async def get_keys(
 )
 async def delete_key(
     api_key_uuid: UUID,
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
 ) -> None:
     try:
@@ -169,7 +171,7 @@ async def generate_token(
 )
 async def refresh_token(
     request: RefreshTokenRequest,
-    authenticated_account_id: UUID = Depends(authenticate),
+    authenticated_account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     jwt_repository: JWTRepository = Injects("jwt_repository")
 ) -> AccessTokenResponse:
     account_id = verify_token(token=request.refresh_token, type="refresh")
@@ -218,7 +220,7 @@ async def refresh_token(
     },
 )
 async def terminate_token(
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     jwt_repository: JWTRepository = Injects("jwt_repository")
 ) -> None:
     await jwt_repository.delete_by_account_id(account_id=account_id)

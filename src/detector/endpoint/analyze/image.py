@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, UploadFile, Form, File, Depends
+from fastapi import APIRouter, UploadFile, Form, File, Security
 from uuid import UUID
 
 from common import Injects
@@ -8,6 +8,7 @@ from common import Injects
 from ...doc import Tags
 from ...authentication import authenticate
 from ...interface import AbstractImageAnalyzer, AbstractAnalyzeImageConfigManager
+from ...model.enum import AuthorizationScopeEnum
 from ...model.api import ObjectAnalysisConfigResponse, ObjectAnalysisConfigRequest, ObjectCountResponse, ObjectLocationResponse
 from ...exception import AnalyzerException, AnalyzeBadRequestException, AnalyzeNotFoundException, ConfigureNotFoundException
 
@@ -27,7 +28,7 @@ router = APIRouter(tags=[Tags.ANALYZE, Tags.IMAGE], prefix="/v1/analyze/image")
 )
 async def count_objects(
     file: Annotated[UploadFile, File(title="Detection image")],
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ANALYZE.value]),
     analysisConfigId: UUID = Form(UUID("3fa85f64-5717-4562-b3fc-2c963f66afa6"), title="Analysis configuration ID"),
     image_analyzer: AbstractImageAnalyzer = Injects("image_analyzer"),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
@@ -52,7 +53,7 @@ async def count_objects(
 )
 async def locate_objects(
     file: Annotated[UploadFile, File(title="Detection image")],
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ANALYZE.value]),
     analysisConfigId: UUID = Form(UUID("3fa85f64-5717-4562-b3fc-2c963f66afa6"), title="Analysis configuration ID"),
     image_analyzer: AbstractImageAnalyzer = Injects("image_analyzer"),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),

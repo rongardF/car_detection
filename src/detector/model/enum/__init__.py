@@ -1,1 +1,2 @@
 from .object_enum import ObjectEnum
+from .authorization_scope_enum import AuthorizationScopeEnum

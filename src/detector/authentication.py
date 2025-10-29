@@ -7,7 +7,7 @@ from secrets import token_urlsafe
 from jwt import encode, decode
 from jwt.exceptions import InvalidTokenError
 from fastapi import Security, Depends
-from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
+from fastapi.security import OAuth2PasswordBearer, APIKeyHeader, SecurityScopes
 from passlib.context import CryptContext
 
 from common import Injects
@@ -28,6 +28,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def authenticate(
+    security_scopes: SecurityScopes,
     api_key: str = Security(api_key_header),
     token: str = Depends(oauth2_scheme),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
@@ -37,6 +38,10 @@ async def authenticate(
         try:
             hashed_key = get_api_key_hash(api_key)
             api_key_entity = await api_key_repository.get_by_hashed_key(hashed_key=hashed_key)
+            if security_scopes.scopes:  # if scopes are required, check if the API key has the required scopes
+                if not api_key_entity.scopes or not any(scope in api_key_entity.scopes.split(";") for scope in security_scopes.scopes):
+                    raise AccountUnAuthorizedException()
+            # if scopes are not required, we can use the API key
             return api_key_entity.account_id
         except NotFoundException:
             raise AccountUnAuthorizedException()
