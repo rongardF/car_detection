@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Security
 from uuid import UUID
 
 from common import Injects
@@ -6,6 +6,7 @@ from common import Injects
 # local imports
 from ...authentication import authenticate
 from ...doc import Tags
+from ...model.enum import AuthorizationScopeEnum
 from ...interface import AbstractAnalyzeImageConfigManager
 from ...model.api import ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse
 from ...exception import AnalyzerException, ConfigureBadRequestException, ConfigureNotFoundException, AccountUnAuthorizedException
@@ -26,7 +27,7 @@ router = APIRouter(tags=[Tags.CONFIGURE, Tags.IMAGE], prefix="/v1/configure/imag
 )
 async def add_config(
     request: ObjectAnalysisConfigRequest,
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.CONFIGURE.value]),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> ObjectAnalysisConfigResponse:
     return await analyze_object_config_manager.add_config(account_id=account_id, request=request)
@@ -44,7 +45,7 @@ async def add_config(
 )
 async def get_config(
     configId: UUID,
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.CONFIGURE.value]),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> ObjectAnalysisConfigResponse:
     return await analyze_object_config_manager.get_config(account_id=account_id, config_id=configId)
@@ -59,7 +60,7 @@ async def get_config(
     },
 )
 async def get_all_configs(
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.CONFIGURE.value]),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> list[ObjectAnalysisConfigResponse]:
     return await analyze_object_config_manager.get_all_configs(account_id=account_id)
@@ -78,7 +79,7 @@ async def get_all_configs(
 async def update_config(
     configId: UUID,
     request: ObjectAnalysisConfigRequest,
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.CONFIGURE.value]),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> ObjectAnalysisConfigResponse:
     return await analyze_object_config_manager.update_config(account_id=account_id, config_id=configId, request=request)
@@ -96,7 +97,7 @@ async def update_config(
 )
 async def delete_config(
     configId: UUID,
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.CONFIGURE.value]),
     analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> None:
     return await analyze_object_config_manager.delete_config(account_id=account_id, config_id=configId)

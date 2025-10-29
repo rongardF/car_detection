@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Optional
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
@@ -11,6 +12,9 @@ class APIKey(Base):
 
     account_id: Mapped[UUID] = mapped_column(
         "account_id", ForeignKey("account.uuid", ondelete="CASCADE"), nullable=False
+    )
+    scopes: Mapped[Optional[str]] = mapped_column(
+        "scopes", nullable=True
     )
     encrypted_key: Mapped[bytes] = mapped_column(
         "key", nullable=False

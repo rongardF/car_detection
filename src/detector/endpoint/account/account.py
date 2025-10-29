@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Security
 
 from common import Injects
 from common.exception.repository_exception import NotUniqueException
@@ -8,6 +8,7 @@ from common.exception.repository_exception import NotUniqueException
 from ...authentication import authenticate, get_password_hash
 from ...doc import Tags
 from ...database import AccountRepository, JWTRepository, APIKeyRepository
+from ...model.enum import AuthorizationScopeEnum
 from ...model.api import AccountRequest, AccountResponse
 from ...exception import AnalyzerException, AccountBadRequestException, AccountEmailRegistered, AccountNotFoundException, AccountUnAuthorizedException
 
@@ -61,7 +62,7 @@ async def add_account(
     },
 )
 async def get_account(
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     account_repository: AccountRepository = Injects("account_repository"),
 ) -> AccountResponse:
     account_entity = await account_repository.get_one(entity_id=account_id)
@@ -88,7 +89,7 @@ async def get_account(
 )
 async def update_account(
     request: AccountRequest,
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     account_repository: AccountRepository = Injects("account_repository"),
 ) -> AccountResponse:
     account_entity = await account_repository.update(
@@ -120,7 +121,7 @@ async def update_account(
     },
 )
 async def delete_account(
-    account_id: UUID = Depends(authenticate),
+    account_id: UUID = Security(authenticate, scopes=[AuthorizationScopeEnum.ACCOUNT.value]),
     account_repository: AccountRepository = Injects("account_repository"),
     jwt_repository: JWTRepository = Injects("jwt_repository"),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
