@@ -1,2 +1,2 @@
-from .model import ObjectAnalysisConfig, FrameMask, Object, Account, APIKey
-from .repository import BaseRepository, ObjectAnalysisConfigRepository, FrameMaskRepository, ObjectRepository, AccountRepository, APIKeyRepository, JWTRepository
+from .model import ObjectAnalysisConfig, FrameMask, Object, Account, APIKey, File
+from .repository import BaseRepository, ObjectAnalysisConfigRepository, FrameMaskRepository, ObjectRepository, AccountRepository, APIKeyRepository, JWTRepository, FileRegisterRepository

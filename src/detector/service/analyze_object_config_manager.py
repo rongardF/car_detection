@@ -5,7 +5,7 @@ from common.exception.repository_exception import NotFoundException
 # local imports
 from ..model.enum import ObjectEnum
 from ..model.api import ObjectAnalysisConfigResponse, ObjectAnalysisConfigRequest, ImageResolution, PixelCoordinate
-from ..exception.api import ConfigureNotFoundException, AccountUnAuthorizedException
+from ..exception.api import ConfigureEntityNotFoundException, AccountUnAuthorizedException
 from ..interface import AbstractAnalyzeImageConfigManager
 from ..database import FrameMaskRepository, ObjectRepository, ObjectAnalysisConfigRepository, ObjectAnalysisConfig
 
@@ -33,6 +33,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                 "image_resolution_width": request.image_resolution.width,
                 "image_resolution_height": request.image_resolution.height,
                 "confidence": request.confidence,
+                "example_image_id": request.example_image_id,
             }
         )
 
@@ -71,7 +72,8 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                 height=object_analysis_config.image_resolution_height
             ),
             image_mask=image_mask if image_mask else None,
-            objects=objects
+            objects=objects,
+            example_image_id=object_analysis_config.example_image_id,
         )
     
     async def get_config(self, account_id: UUID, config_id: UUID) -> ObjectAnalysisConfigResponse:
@@ -86,7 +88,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                 entity_id=config_id
             )
         except NotFoundException as err:
-            raise ConfigureNotFoundException(f"entity_{err.entity_id}_not_found_in_{err.table_name}")
+            raise ConfigureEntityNotFoundException(f"entity_{err.entity_id}_not_found_in_{err.table_name}")
         
         self._validate_is_users_config(account_id, object_analysis_config)
 
@@ -103,7 +105,8 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
             ] if frame_mask_points else None,
             objects=[
                 ObjectEnum(object.value) for object in objects
-            ]
+            ],
+            example_image_id=object_analysis_config.example_image_id,
         )
     
     async def get_all_configs(self, account_id: UUID) -> list[ObjectAnalysisConfigResponse]:
@@ -134,7 +137,8 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                     ] if frame_mask_points else None,
                     objects=[
                         ObjectEnum(object.value) for object in objects
-                    ]
+                    ],
+                    example_image_id=config.example_image_id,
                 )
             )
         
@@ -182,10 +186,11 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                     "image_resolution_width": request.image_resolution.width,
                     "image_resolution_height": request.image_resolution.height,
                     "confidence": request.confidence,
+                    "example_image_id": request.example_image_id,
                 }
             )
         except NotFoundException as err:
-            raise ConfigureNotFoundException(f"entity_{err.entity_id}_not_found_in_{err.table_name}")
+            raise ConfigureEntityNotFoundException(f"entity_{err.entity_id}_not_found_in_{err.table_name}")
 
         return ObjectAnalysisConfigResponse(
             id=updated_object_analysis_config.id,
@@ -195,7 +200,8 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                 height=updated_object_analysis_config.image_resolution_height
             ),
             image_mask=image_mask if image_mask else None,
-            objects=objects
+            objects=objects,
+            example_image_id=updated_object_analysis_config.example_image_id,
         )
     
     async def delete_config(self, account_id: UUID, config_id: UUID) -> None:
@@ -204,4 +210,4 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
             self._validate_is_users_config(account_id, object_analysis_config)
             await self._object_analysis_config_repository.delete(entity_id=config_id)
         except NotFoundException as err:
-            raise ConfigureNotFoundException(f"entity_{err.entity_id}_not_found_in_{err.table_name}")
+            raise ConfigureEntityNotFoundException(f"entity_{err.entity_id}_not_found_in_{err.table_name}")

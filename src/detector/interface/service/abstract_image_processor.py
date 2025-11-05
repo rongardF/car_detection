@@ -13,6 +13,14 @@ class AbstractImageProcessor(ABC):
     ALLOWED_MIME_TYPES = {"image/jpeg", "image/png"}
 
     @abstractmethod
+    def is_allowed_type(self, file: UploadFile) -> bool:
+        raise NotImplementedError()
+    
+    @abstractmethod
+    def get_image_type(self, file: UploadFile) -> str:
+        raise NotImplementedError()
+        
+    @abstractmethod
     async def file_to_image_array(self, file: UploadFile) -> ndarray:
         raise NotImplementedError()
     

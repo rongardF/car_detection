@@ -17,5 +17,18 @@ class ConfigureBadRequestException(AnalyzerException):
 class ConfigureNotFoundException(AnalyzerException):
     status = HTTPStatus.NOT_FOUND
 
+    def __init__(self, detail: Any = "configure_not_found"):
+        super().__init__(detail=detail)
+
+
+class ConfigureEntityNotFoundException(ConfigureNotFoundException):
+    status = HTTPStatus.NOT_FOUND
+
     def __init__(self, detail: Any = "configure_endpoint_entity_not_found"):
+        super().__init__(detail=detail)
+
+class ConfigureImageNotFoundException(ConfigureNotFoundException):
+    status = HTTPStatus.NOT_FOUND
+
+    def __init__(self, detail: Any = "configuration_image_not_found"):
         super().__init__(detail=detail)

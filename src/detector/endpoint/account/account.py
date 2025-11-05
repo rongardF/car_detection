@@ -8,8 +8,9 @@ from common.exception.repository_exception import NotUniqueException
 from ...authentication import authenticate, get_password_hash
 from ...doc import Tags
 from ...database import AccountRepository, JWTRepository, APIKeyRepository
+from ...interface import AbstractFileStorage, AbstractAnalyzeImageConfigManager
 from ...model.enum import AuthorizationScopeEnum
-from ...model.api import AccountRequest, AccountResponse
+from ...model.api import AccountRequest, AccountResponse, ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse
 from ...exception import AnalyzerException, AccountBadRequestException, AccountEmailRegistered, AccountNotFoundException, AccountUnAuthorizedException
 
 router = APIRouter(tags=[Tags.ACCOUNT], prefix="/v1/account")
@@ -112,7 +113,7 @@ async def update_account(
 @router.delete(
     path="/",
     summary="Delete account",
-    description="Delete account",
+    description="Delete account and related data (configs, files, etc.)",
     status_code=204,
     responses={
         401: {"model": AccountUnAuthorizedException.model},
@@ -125,9 +126,19 @@ async def delete_account(
     account_repository: AccountRepository = Injects("account_repository"),
     jwt_repository: JWTRepository = Injects("jwt_repository"),
     api_key_repository: APIKeyRepository = Injects("api_key_repository"),
+    file_storage: AbstractFileStorage = Injects("file_storage"),
+    analyze_object_config_manager: AbstractAnalyzeImageConfigManager[ObjectAnalysisConfigRequest, ObjectAnalysisConfigResponse] = Injects("analyze_object_config_manager"),
 ) -> None:
     # delete keys and invalidate access
     await api_key_repository.delete_by_account_id(account_id=account_id)
     await jwt_repository.delete_by_account_id(account_id=account_id)
+    # delete blob data
+    blob_file_ids = await file_storage.fetch_files_list(account_id=account_id)
+    for file_id in blob_file_ids:
+        await file_storage.delete_file(account_id=account_id, file_id=file_id)
+    # delete all configuration data for account
+    configs = await analyze_object_config_manager.get_all_configs(account_id=account_id)
+    for config in configs:
+        await analyze_object_config_manager.delete_config(account_id=account_id, config_id=config.id)
     # delete the actual user entity
     return await account_repository.delete(entity_id=account_id)

@@ -2,7 +2,9 @@ from fastapi import APIRouter
 
 from . import health
 from .analyze import image as analyze_image
-from .configure import image as configure_image_analysis
+from .configure import (
+    image as configure_image_analysis,
+)
 from .account import account, authentication
 
 

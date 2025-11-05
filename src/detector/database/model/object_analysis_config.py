@@ -10,6 +10,9 @@ class ObjectAnalysisConfig(Base):
     account_id: Mapped[UUID] = mapped_column(
         "account_uuid", nullable=False,
     )
+    example_image_id: Mapped[UUID] = mapped_column(
+        "example_image_uuid", nullable=False,
+    )
     image_resolution_width: Mapped[int] = mapped_column(
         "resolution_width", nullable=False
     )

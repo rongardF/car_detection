@@ -5,3 +5,4 @@ from .object import ObjectRepository
 from .account_repository import AccountRepository
 from .api_key_repository import APIKeyRepository
 from .jwt_repository import JWTRepository
+from .file_register_repository import FileRegisterRepository

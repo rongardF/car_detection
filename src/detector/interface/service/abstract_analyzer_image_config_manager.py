@@ -19,7 +19,7 @@ class AbstractAnalyzeImageConfigManager(ABC, Generic[REQUEST, RESPONSE]):
         raise NotImplementedError()
     
     @abstractmethod
-    async def get_all_configs(self, account_id: UUID) -> RESPONSE:
+    async def get_all_configs(self, account_id: UUID) -> list[RESPONSE]:
         raise NotImplementedError()
     
     @abstractmethod
