@@ -2,6 +2,7 @@ from common.database import Base
 from .frame_mask import FrameMask
 from .object import Object
 from .object_analysis_config import ObjectAnalysisConfig
+from .file import File
 
 from .account import Account
 from .api_key import APIKey

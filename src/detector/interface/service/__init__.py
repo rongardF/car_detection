@@ -1,3 +1,5 @@
 from .abstract_image_processor import AbstractImageProcessor
 from .abstract_analyzer_image_config_manager import AbstractAnalyzeImageConfigManager
 from .abstract_image_analyzer import AbstractImageAnalyzer
+from .abstract_blob_storage_client import AbstractBlobStorageClient
+from .abstract_file_storage import AbstractFileStorage

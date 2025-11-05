@@ -10,7 +10,7 @@ from ...authentication import authenticate
 from ...interface import AbstractImageAnalyzer, AbstractAnalyzeImageConfigManager
 from ...model.enum import AuthorizationScopeEnum
 from ...model.api import ObjectAnalysisConfigResponse, ObjectAnalysisConfigRequest, ObjectCountResponse, ObjectLocationResponse
-from ...exception import AnalyzerException, AnalyzeBadRequestException, AnalyzeNotFoundException, ConfigureNotFoundException
+from ...exception import AnalyzerException, AnalyzeBadRequestException, AnalyzeNotFoundException, ConfigureEntityNotFoundException, AccountUnAuthorizedException
 
 router = APIRouter(tags=[Tags.ANALYZE, Tags.IMAGE], prefix="/v1/analyze/image")
 
@@ -22,6 +22,7 @@ router = APIRouter(tags=[Tags.ANALYZE, Tags.IMAGE], prefix="/v1/analyze/image")
     status_code=200,
     responses={
         400: {"model": AnalyzeBadRequestException.model},
+        401: {"model": AccountUnAuthorizedException.model},
         404: {"model": AnalyzeNotFoundException.model},
         500: {"model": AnalyzerException.model},
     },
@@ -35,7 +36,7 @@ async def count_objects(
 ) -> list[ObjectCountResponse]:
     try:
         analysis_config = await analyze_object_config_manager.get_config(account_id=account_id, config_id=analysisConfigId)
-    except ConfigureNotFoundException:
+    except ConfigureEntityNotFoundException:
         raise AnalyzeNotFoundException(detail="configuration_entity_not_found")
     return await image_analyzer.count_objects(file=file, object_analysis_config=analysis_config)
 
@@ -47,6 +48,7 @@ async def count_objects(
     status_code=200,
     responses={
         400: {"model": AnalyzeBadRequestException.model},
+        401: {"model": AccountUnAuthorizedException.model},
         404: {"model": AnalyzeNotFoundException.model},
         500: {"model": AnalyzerException.model},
     },
@@ -60,7 +62,7 @@ async def locate_objects(
 ) -> list[ObjectLocationResponse]:
     try:
         analysis_config = await analyze_object_config_manager.get_config(account_id=account_id, config_id=analysisConfigId)
-    except ConfigureNotFoundException:
+    except ConfigureEntityNotFoundException:
         raise AnalyzeNotFoundException(detail="configuration_entity_not_found")
     return await image_analyzer.locate_objects(file=file, object_analysis_config=analysis_config)
 # endregion: image

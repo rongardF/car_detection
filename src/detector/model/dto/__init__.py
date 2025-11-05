@@ -4,3 +4,5 @@ from .pixel_coordinate_dto import PixelCoordinateDto
 from .image_resolution_dto import ImageResolutionDto
 from .object_bounding_box_dto import ObjectBoundingBoxDto
 from .analyze_object_count_config_dto import AnalyzeObjectCountConfigDto
+from .blob_file_container_dto import BlobFileContainerDto
+from .file_container_dto import FileContainerDto

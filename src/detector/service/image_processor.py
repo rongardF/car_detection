@@ -14,16 +14,25 @@ class ImageProcessor(AbstractImageProcessor):
 
     def __init__(self):
         pass
+
+    def get_image_type(self, file: UploadFile) -> str:
+        return file.filename.lower().rsplit(".", 1)[-1]
+
+    def is_allowed_type(self, file: UploadFile) -> bool:
+        file_extension = file.filename.lower().rsplit(".", 1)[-1]
+        if f".{file_extension}" not in self.ALLOWED_EXTENSIONS:
+            return False
+
+        if file.content_type not in self.ALLOWED_MIME_TYPES:
+            return False
+        
+        return True
+    
     
     async def file_to_image_array(self, file: UploadFile) -> ndarray:
         # Ensure its image type file
-        file_extension = file.filename.lower().rsplit(".", 1)[-1]
-        if f".{file_extension}" not in self.ALLOWED_EXTENSIONS:
+        if not self.is_allowed_type(file=file):
             raise FileInvalidException()
-
-        if file.content_type not in self.ALLOWED_MIME_TYPES:
-            raise FileInvalidException()
-        
 
         content = await file.read()
 

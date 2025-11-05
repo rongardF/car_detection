@@ -2,3 +2,5 @@ from .image_processor import ImageProcessor
 from .image_analyzer import ImageAnalyzer
 from .analyze_object_config_manager import AnalyzeObjectConfigManager
 from .authentication_manager import AuthenticationManager
+from .blob_storage_client import BlobStorageClient
+from .file_storage import FileStorage

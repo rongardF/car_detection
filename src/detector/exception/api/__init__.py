@@ -1,4 +1,4 @@
 from .analyzer_base_exception import AnalyzerException
 from .analyze_exception import AnalyzeBadRequestException, MaskInvalidException, FileInvalidException, AnalyzeNotFoundException
-from .configure_exception import ConfigureBadRequestException, ConfigureNotFoundException
+from .configure_exception import ConfigureBadRequestException, ConfigureNotFoundException, ConfigureEntityNotFoundException, ConfigureImageNotFoundException
 from .account_exception import AccountBadRequestException, AccountEmailRegistered, AccountNotFoundException, AccountUnAuthorizedException

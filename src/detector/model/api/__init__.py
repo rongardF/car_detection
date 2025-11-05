@@ -11,3 +11,5 @@ from .object_location import ObjectLocationResponse
 from .account import AccountRequest, AccountResponse
 from .api_key import APIKeyResponse
 from .token import AccessTokenResponse, RefreshTokenRequest
+
+from .file import FileUploadResponse
