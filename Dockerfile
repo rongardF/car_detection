@@ -36,6 +36,7 @@ RUN rm /tmp/requirements.txt
 
 # copy everything from src
 COPY ./src /opt/app/src
+ENV PYTHONPATH="$PYTHONPATH:/opt/app/src"
 
 # add non-root user and disable the login for that user
 RUN adduser --disabled-password --disabled-login --gecos "" app
@@ -47,3 +48,5 @@ WORKDIR /opt/app/src
 
 # change from root user to non-root user (commands after this are run as 'app' user)
 USER app
+
+CMD [ "python", "main.py" ]
