@@ -109,7 +109,10 @@ async def delete_config(
 ) -> None:
     # delete image file
     config = await analyze_object_config_manager.get_config(account_id=account_id, config_id=configId)
-    await file_storage.delete_file(account_id=account_id, file_id=config.example_image_id)
+    try:
+        await file_storage.delete_file(account_id=account_id, file_id=config.example_image_id)
+    except FileNotFound:
+        pass  # TODO: log this as warning
     # delete config
     return await analyze_object_config_manager.delete_config(account_id=account_id, config_id=configId)
 # endregion: object

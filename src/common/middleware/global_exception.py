@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+import traceback
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.types import Receive, Scope, Send
@@ -23,6 +24,7 @@ class GlobalExceptionMiddleware:
                 status_code=getattr(HTTPStatus.BAD_REQUEST, "value"),
                 content={"errors": [getattr(HTTPStatus.BAD_REQUEST, "phrase")]},
             )
+            traceback.print_exception(err)
             await response(scope, receive, send)
         except Exception as err:  # pylint: disable=broad-exception-caught
             # logger.exception("unhandled_exception")
@@ -30,4 +32,5 @@ class GlobalExceptionMiddleware:
                 status_code=getattr(HTTPStatus.INTERNAL_SERVER_ERROR, "value"),
                 content={"errors": [getattr(HTTPStatus.INTERNAL_SERVER_ERROR, "phrase")]},
             )
+            traceback.print_exception(err)
             await response(scope, receive, send)
