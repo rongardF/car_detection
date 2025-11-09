@@ -30,6 +30,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
         object_analysis_config = await self._object_analysis_config_repository.create(
             values={
                 "account_id": account_id,
+                "config_name": request.config_name,
                 "image_resolution_width": request.image_resolution.width,
                 "image_resolution_height": request.image_resolution.height,
                 "confidence": request.confidence,
@@ -74,6 +75,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
             image_mask=image_mask if image_mask else None,
             objects=objects,
             example_image_id=object_analysis_config.example_image_id,
+            config_name=object_analysis_config.config_name
         )
     
     async def get_config(self, account_id: UUID, config_id: UUID) -> ObjectAnalysisConfigResponse:
@@ -107,6 +109,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                 ObjectEnum(object.value) for object in objects
             ],
             example_image_id=object_analysis_config.example_image_id,
+            config_name=object_analysis_config.config_name,
         )
     
     async def get_all_configs(self, account_id: UUID) -> list[ObjectAnalysisConfigResponse]:
@@ -139,6 +142,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                         ObjectEnum(object.value) for object in objects
                     ],
                     example_image_id=config.example_image_id,
+                    config_name=config.config_name
                 )
             )
         
@@ -187,6 +191,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
                     "image_resolution_height": request.image_resolution.height,
                     "confidence": request.confidence,
                     "example_image_id": request.example_image_id,
+                    "config_name": request.config_name,
                 }
             )
         except NotFoundException as err:
@@ -202,6 +207,7 @@ class AnalyzeObjectConfigManager(AbstractAnalyzeImageConfigManager[ObjectAnalysi
             image_mask=image_mask if image_mask else None,
             objects=objects,
             example_image_id=updated_object_analysis_config.example_image_id,
+            config_name=updated_object_analysis_config.config_name,
         )
     
     async def delete_config(self, account_id: UUID, config_id: UUID) -> None:

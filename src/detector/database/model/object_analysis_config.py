@@ -10,6 +10,9 @@ class ObjectAnalysisConfig(Base):
     account_id: Mapped[UUID] = mapped_column(
         "account_uuid", nullable=False,
     )
+    config_name: Mapped[str] = mapped_column(
+        "config_name", nullable=True,
+    )
     example_image_id: Mapped[UUID] = mapped_column(
         "example_image_uuid", nullable=False,
     )
