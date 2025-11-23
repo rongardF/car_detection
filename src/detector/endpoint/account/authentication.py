@@ -204,7 +204,7 @@ async def refresh_token(
 
     return AccessTokenResponse(
         access_token=jwt_entity.access_token,
-        refresh_toke=jwt_entity.refresh_token,
+        refresh_token=jwt_entity.refresh_token,
     )
 
 
