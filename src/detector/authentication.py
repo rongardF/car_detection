@@ -83,8 +83,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
-    else:  # default expiry is 15 minutes
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    else:  # default expiry is 30 minutes
+        expire = datetime.now(timezone.utc) + timedelta(minutes=30)
     to_encode.update({"exp": expire})
     encoded_jwt = encode(to_encode, ACCESS_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -102,8 +102,8 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
-    else:  # default expiry is 15 minutes
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)  # FIXME: expiry must be longer here because we don't generate new refresh tokens - this single token will be used to refresh access token until it expiry in whcih case we force the user to login again
+    else:  # default expiry is 60 minutes
+        expire = datetime.now(timezone.utc) + timedelta(minutes=60)  # FIXME: expiry must be longer here because we don't generate new refresh tokens - this single token will be used to refresh access token until it expiry in whcih case we force the user to login again
     to_encode.update({"exp": expire})
     encoded_jwt = encode(to_encode, REFRESH_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
